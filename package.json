@@ -22,6 +22,7 @@
   "homepage": "https://github.com/PaidUp/PUBroker#readme",
   "dependencies": {
     "compression": "^1.7.3",
+    "cors": "^2.8.4",
     "express": "^4.16.3",
     "graphql": "^0.13.2",
     "graphql-server-express": "^1.4.0",

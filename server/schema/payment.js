@@ -2,10 +2,10 @@ module.exports = `
   # This is an Payment Report 
   type Payment {
     # generated id
-    invoiceId: String
+    receiptId: String
     type: String!
     chargeDate: Date
-    invoiceDate: Date
+    receiptDate: Date
     description: String!
     program: String!
     status: String
@@ -17,5 +17,6 @@ module.exports = `
     processingFee: Float
     paidupFee: Float
     totalFee: Float
+    tags: [String]
   }
 `

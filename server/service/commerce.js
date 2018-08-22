@@ -1,10 +1,10 @@
 import fetch from 'node-fetch'
-
+import config from '@/config/environment'
 function trae (url, method, body) {
   const options = {
     method,
     body,
-    headers: { 'x-api-key': 'JF06f7FJjTDkNOcM1sdywWw5CZBHW4Jy' }
+    headers: { 'x-api-key': config.api.key }
   }
   return fetch(url,
     options
@@ -115,15 +115,15 @@ function reducePreorders (preorders, beneficiaries) {
 
 export default class CommerceService {
   static invoices (organizationId, seasonId) {
-    return trae(`http://localhost:9003/api/v1/commerce/invoice/organization/${organizationId}?seasonId=${seasonId}`, 'GET')
+    return trae(`${config.api.commerce}/invoice/organization/${organizationId}?seasonId=${seasonId}`, 'GET')
   }
 
   static payments (organizationId, seasonId) {
     return Promise.all([
-      trae(`http://localhost:9002/api/v1/organization/${organizationId}/beneficiaries`, 'GET'),
-      trae(`http://localhost:9003/api/v1/commerce/invoice/organization/${organizationId}?seasonId=${seasonId}`, 'GET'),
-      trae(`http://localhost:9003/api/v1/commerce/credit/organization/${organizationId}?seasonId=${seasonId}`, 'GET'),
-      trae(`http://localhost:9003/api/v1/commerce/preorder/organization/${organizationId}?seasonId=${seasonId}`, 'GET')
+      trae(`${config.api.organization}/${organizationId}/beneficiaries`, 'GET'),
+      trae(`${config.api.commerce}/invoice/organization/${organizationId}?seasonId=${seasonId}`, 'GET'),
+      trae(`${config.api.commerce}/credit/organization/${organizationId}?seasonId=${seasonId}`, 'GET'),
+      trae(`${config.api.commerce}/preorder/organization/${organizationId}?seasonId=${seasonId}`, 'GET')
     ]).then(values => {
       const beneficiaries = mapBeneficiaries(values[0])
       const invoices = reduceInvoices(values[1], beneficiaries)

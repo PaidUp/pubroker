@@ -25,6 +25,13 @@ let all = {
     projectId: 'gothic-talent-192920',
     logName: 'pu-broker-local-log',
     metadata: {resource: {type: 'global'}}
+  },
+  api: {
+    key: 'JF06f7FJjTDkNOcM1sdywWw5CZBHW4Jy',
+    user: 'http://localhost:9001/api/v1/user',
+    payment: 'http://localhost:9004/api/v1/payment',
+    organization: 'http://localhost:9002/api/v1/organization',
+    commerce: 'http://localhost:9003/api/v1/commerce'
   }
 }
 

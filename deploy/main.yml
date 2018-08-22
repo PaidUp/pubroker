@@ -28,13 +28,13 @@
   - name: copy config
     copy:
       src: '{{config}}/{{env}}.js'
-      dest: '{{workspace}}/src/config/environment/{{env}}.js'
+      dest: '{{workspace}}/server/config/environment/{{env}}.js'
       remote_src: yes
 
   - name: copy config base
     copy:
-      src: '{{workspace}}/src/config/environment/index.base.js'
-      dest: '{{workspace}}/src/config/environment/index.js'
+      src: '{{workspace}}/server/config/environment/index.base.js'
+      dest: '{{workspace}}/server/config/environment/index.js'
       remote_src: yes
 
   - name: install node modules

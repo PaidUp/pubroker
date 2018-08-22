@@ -24,7 +24,7 @@ jobs:
       - run: yarn install
       - run:
           name: copy config file
-          command: cp src/config/environment/index.base.js src/config/environment/index.js
+          command: cp server/config/environment/index.base.js server/config/environment/index.js
 
       - save_cache:
           paths:

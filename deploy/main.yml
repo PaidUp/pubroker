@@ -1,7 +1,7 @@
 - hosts: '{{env}}'
 
   vars:
-    workspace: /home/ubuntu/PUCharge
+    workspace: /home/ubuntu/PUBroker
     config: /home/ubuntu/PUBrokerConfig
     acceptable_env: ['develop', 'stage', 'production']
 

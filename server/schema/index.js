@@ -1,7 +1,7 @@
 const { makeExecutableSchema } = require('graphql-tools')
 const resolvers = require('../resolver')
-const Invoice = require('./Invoice')
-const Payment = require('./Payment')
+const Invoice = require('./invoice')
+const Payment = require('./payment')
 
 const rootQuery = `
   scalar Date

@@ -4,13 +4,14 @@ module.exports = `
     # generated id
     receiptId: String
     type: String!
-    chargeDate: Date
-    receiptDate: Date
+    chargeDate: String
+    receiptDate: String
     description: String!
     program: String!
     status: String
     parentName: String!
     parentEmail: String!
+    parentPhone: String
     playerName: String!
     amount: Float
     refund: Float
@@ -18,5 +19,6 @@ module.exports = `
     paidupFee: Float
     totalFee: Float
     tags: [String]
+    index: String!
   }
 `

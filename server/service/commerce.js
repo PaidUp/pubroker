@@ -19,9 +19,18 @@ function mapBeneficiaries (beneficiaries) {
   }, {})
 }
 
-function reduceInvoices (invoices, beneficiaries) {
+function mapUsers (users) {
+  if (!users) return {}
+  return users.reduce((redu, curr) => {
+    redu[curr.email] = curr
+    return redu
+  }, {})
+}
+
+function reduceInvoices (invoices, beneficiaries, users) {
   let mapped = invoices.map(invoice => {
     let beneficiary = beneficiaries[invoice.beneficiaryId]
+    let user = users[invoice.user.userEmail]
     let resp = {
       receiptId: invoice.invoiceId,
       type: 'invoice',
@@ -29,7 +38,8 @@ function reduceInvoices (invoices, beneficiaries) {
       description: invoice.label,
       program: invoice.productName,
       status: invoice.status,
-      parentName: invoice.user.userFirstName + ' ' + invoice.user.userLastName,
+      parentName: user.firstName + ' ' + user.lastName,
+      parentPhone: user.phone,
       parentEmail: invoice.user.userEmail,
       playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
       amount: invoice.price,
@@ -37,7 +47,8 @@ function reduceInvoices (invoices, beneficiaries) {
       processingFee: invoice.stripeFee,
       paidupFee: invoice.paidupFee,
       totalFee: invoice.totalFee,
-      tags: invoice.tags
+      tags: invoice.tags,
+      index: `${invoice.invoiceId} ${invoice.label} ${user.firstName} ${user.lastName} ${invoice.user.userEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
     }
     invoice.attempts.forEach(attempt => {
       if (attempt.object === 'charge') {
@@ -52,9 +63,10 @@ function reduceInvoices (invoices, beneficiaries) {
   return mapped
 }
 
-function reduceCredits (credits, beneficiaries) {
+function reduceCredits (credits, beneficiaries, users) {
   let mapped = credits.map(credit => {
     let beneficiary = beneficiaries[credit.beneficiaryId]
+    let user = users[credit.assigneeEmail]
     let resp = {
       receiptId: credit.memoId,
       type: 'credit',
@@ -62,26 +74,25 @@ function reduceCredits (credits, beneficiaries) {
       description: credit.label,
       program: credit.productName,
       status: credit.status,
-      parentName: '',
+      parentName: user.firstName + ' ' + user.lastName,
+      parentPhone: user.phone,
       parentEmail: credit.assigneeEmail,
       playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
       amount: credit.price,
-      tags: credit.tags
-      // refund: 0,
-      // processingFee: 0,
-      // paidupFee: 0,
-      // totalFee: 0
+      tags: credit.tags,
+      index: `${credit.memoId} ${credit.label} ${user.firstName} ${user.lastName} ${credit.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
     }
     return resp
   })
   return mapped
 }
 
-function reducePreorders (preorders, beneficiaries) {
+function reducePreorders (preorders, beneficiaries, users) {
   const today = new Date().getTime()
   let mapped = []
   preorders.forEach(preorder => {
     let beneficiary = beneficiaries[preorder.beneficiaryId]
+    let user = users[preorder.assigneeEmail]
     preorder.dues.forEach(due => {
       let resp = {
         receiptId: '',
@@ -90,15 +101,13 @@ function reducePreorders (preorders, beneficiaries) {
         description: due.description,
         program: preorder.productName,
         status: '',
-        parentName: '',
+        parentName: user.firstName + ' ' + user.lastName,
+        parentPhone: user.phone,
         parentEmail: preorder.assigneeEmail,
         playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
         amount: due.amount,
-        tags: due.tags
-        // refund: 0,
-        // processingFee: 0,
-        // paidupFee: 0,
-        // totalFee: 0
+        tags: due.tags,
+        index: `${due.description} ${user.firstName} ${user.lastName} ${preorder.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
       }
       let dateCharge = new Date(due.dateCharge).getTime()
       if (today < dateCharge) {
@@ -120,15 +129,17 @@ export default class CommerceService {
 
   static payments (organizationId, seasonId) {
     return Promise.all([
+      trae(`${config.api.user}/all`, 'GET'),
       trae(`${config.api.organization}/${organizationId}/beneficiaries`, 'GET'),
       trae(`${config.api.commerce}/invoice/organization/${organizationId}?seasonId=${seasonId}`, 'GET'),
       trae(`${config.api.commerce}/credit/organization/${organizationId}?seasonId=${seasonId}`, 'GET'),
       trae(`${config.api.commerce}/preorder/organization/${organizationId}?seasonId=${seasonId}`, 'GET')
     ]).then(values => {
-      const beneficiaries = mapBeneficiaries(values[0])
-      const invoices = reduceInvoices(values[1], beneficiaries)
-      const credits = reduceCredits(values[2], beneficiaries)
-      const preorders = reducePreorders(values[3], beneficiaries)
+      const users = mapUsers(values[0])
+      const beneficiaries = mapBeneficiaries(values[1])
+      const invoices = reduceInvoices(values[2], beneficiaries, users)
+      const credits = reduceCredits(values[3], beneficiaries, users)
+      const preorders = reducePreorders(values[4], beneficiaries, users)
       let merged = invoices.concat(credits).concat(preorders)
       merged.sort((receiptA, receiptB) => {
         const dateA = new Date(receiptA.receiptDate)

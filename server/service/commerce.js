@@ -38,8 +38,8 @@ function reduceInvoices (invoices, beneficiaries, users) {
       description: invoice.label,
       program: invoice.productName,
       status: invoice.status,
-      parentName: user.firstName + ' ' + user.lastName,
-      parentPhone: user.phone,
+      parentName: user ? user.firstName + ' ' + user.lastName : '',
+      parentPhone: user ? user.phone : '',
       parentEmail: invoice.user.userEmail,
       playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
       amount: invoice.price,
@@ -48,7 +48,7 @@ function reduceInvoices (invoices, beneficiaries, users) {
       paidupFee: invoice.paidupFee,
       totalFee: invoice.totalFee,
       tags: invoice.tags,
-      index: `${invoice.invoiceId} ${invoice.label} ${user.firstName} ${user.lastName} ${invoice.user.userEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
+      index: `${invoice.invoiceId} ${invoice.label} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${invoice.user.userEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
     }
     invoice.attempts.forEach(attempt => {
       if (attempt.object === 'charge') {
@@ -74,13 +74,13 @@ function reduceCredits (credits, beneficiaries, users) {
       description: credit.label,
       program: credit.productName,
       status: credit.status,
-      parentName: user.firstName + ' ' + user.lastName,
-      parentPhone: user.phone,
+      parentName: user ? user.firstName + ' ' + user.lastName : '',
+      parentPhone: user ? user.phone : '',
       parentEmail: credit.assigneeEmail,
       playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
       amount: credit.price,
       tags: credit.tags,
-      index: `${credit.memoId} ${credit.label} ${user.firstName} ${user.lastName} ${credit.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
+      index: `${credit.memoId} ${credit.label} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${credit.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
     }
     return resp
   })
@@ -101,13 +101,13 @@ function reducePreorders (preorders, beneficiaries, users) {
         description: due.description,
         program: preorder.productName,
         status: '',
-        parentName: user.firstName + ' ' + user.lastName,
-        parentPhone: user.phone,
+        parentName: user ? user.firstName + ' ' + user.lastName : '',
+        parentPhone: user ? user.phone : '',
         parentEmail: preorder.assigneeEmail,
         playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
         amount: due.amount,
         tags: due.tags,
-        index: `${due.description} ${user.firstName} ${user.lastName} ${preorder.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
+        index: `${due.description} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${preorder.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
       }
       let dateCharge = new Date(due.dateCharge).getTime()
       if (today < dateCharge) {

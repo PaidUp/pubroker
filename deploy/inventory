@@ -5,4 +5,4 @@ ec2-35-153-208-127.compute-1.amazonaws.com     ansible_connection=ssh        ans
 ec2-18-208-213-95.compute-1.amazonaws.com     ansible_connection=ssh        ansible_user=ubuntu     ansible_ssh_private_key_file=/Users/riclara/.ssh/stage-env.pem
 
 [production]
-#ec2-54-163-115-75.compute-1.amazonaws.com     ansible_connection=ssh        ansible_user=ubuntu     ansible_ssh_private_key_file=/Users/riclara/.ssh/production-env.pem
+ec2-34-207-247-196.compute-1.amazonaws.com     ansible_connection=ssh        ansible_user=ubuntu     ansible_ssh_private_key_file=/Users/riclara/.ssh/production-env.pem

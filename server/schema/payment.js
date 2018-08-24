@@ -19,7 +19,8 @@ module.exports = `
     paidupFee: Float
     totalFee: Float
     tags: [String]
-    paymentMethod: String
+    paymentMethodBrand: String
+    paymentMethodLast4: String
     index: String!
   }
 `

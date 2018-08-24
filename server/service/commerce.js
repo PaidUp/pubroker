@@ -48,7 +48,8 @@ function reduceInvoices (invoices, beneficiaries, users) {
       paidupFee: invoice.paidupFee,
       totalFee: invoice.totalFee,
       tags: invoice.tags,
-      paymentMethod: `${invoice.paymentDetails.brand}••••${invoice.paymentDetails.last4}`,
+      paymentMethodBrand: invoice.paymentDetails.brand,
+      paymentMethodLast4: invoice.paymentDetails.last4,
       index: `${invoice.invoiceId} ${invoice.label} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${invoice.user.userEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
     }
     invoice.attempts.forEach(attempt => {
@@ -81,7 +82,8 @@ function reduceCredits (credits, beneficiaries, users) {
       playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
       amount: credit.price,
       tags: credit.tags,
-      paymentMethod: '',
+      paymentMethodBrand: '',
+      paymentMethodLast4: '',
       index: `${credit.memoId} ${credit.label} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${credit.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
     }
     return resp
@@ -109,7 +111,8 @@ function reducePreorders (preorders, beneficiaries, users) {
         playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
         amount: due.amount,
         tags: due.tags,
-        paymentMethod: '',
+        paymentMethodBrand: '',
+        paymentMethodLast4: '',
         index: `${due.description} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${preorder.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
       }
       let dateCharge = new Date(due.dateCharge).getTime()

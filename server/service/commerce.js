@@ -41,7 +41,7 @@ function reduceInvoices (invoices, beneficiaries, users) {
       parentName: user ? user.firstName + ' ' + user.lastName : '',
       parentPhone: user ? user.phone : '',
       parentEmail: invoice.user.userEmail,
-      playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
+      playerName: beneficiary ? beneficiary.firstName + ' ' + beneficiary.lastName : '',
       amount: invoice.price,
       refund: 0,
       processingFee: invoice.stripeFee,
@@ -50,7 +50,7 @@ function reduceInvoices (invoices, beneficiaries, users) {
       tags: invoice.tags,
       paymentMethodBrand: invoice.paymentDetails.brand,
       paymentMethodLast4: invoice.paymentDetails.last4,
-      index: `${invoice.invoiceId} ${invoice.label} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${invoice.user.userEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
+      index: `${invoice.invoiceId} ${invoice.label} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${invoice.user.userEmail} ${beneficiary ? beneficiary.firstName : ''} ${beneficiary ? beneficiary.lastName : ''}`
     }
     invoice.attempts.forEach(attempt => {
       if (attempt.object === 'charge') {
@@ -79,12 +79,12 @@ function reduceCredits (credits, beneficiaries, users) {
       parentName: user ? user.firstName + ' ' + user.lastName : '',
       parentPhone: user ? user.phone : '',
       parentEmail: credit.assigneeEmail,
-      playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
+      playerName: beneficiary ? beneficiary.firstName + ' ' + beneficiary.lastName : '',
       amount: credit.price,
       tags: credit.tags,
       paymentMethodBrand: '',
       paymentMethodLast4: '',
-      index: `${credit.memoId} ${credit.label} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${credit.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
+      index: `${credit.memoId} ${credit.label} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${credit.assigneeEmail} ${beneficiary ? beneficiary.firstName : ''} ${beneficiary ? beneficiary.lastName : ''}`
     }
     return resp
   })
@@ -108,12 +108,12 @@ function reducePreorders (preorders, beneficiaries, users) {
         parentName: user ? user.firstName + ' ' + user.lastName : '',
         parentPhone: user ? user.phone : '',
         parentEmail: preorder.assigneeEmail,
-        playerName: beneficiary.firstName + ' ' + beneficiary.lastName,
+        playerName: beneficiary ? beneficiary.firstName + ' ' + beneficiary.lastName : '',
         amount: due.amount,
         tags: due.tags,
         paymentMethodBrand: '',
         paymentMethodLast4: '',
-        index: `${due.description} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${preorder.assigneeEmail} ${beneficiary.firstName} ${beneficiary.lastName}`
+        index: `${due.description} ${user ? user.firstName : ''} ${user ? user.lastName : ''} ${preorder.assigneeEmail} ${beneficiary ? beneficiary.firstName : ''} ${beneficiary ? beneficiary.lastName : ''}`
       }
       let dateCharge = new Date(due.dateCharge).getTime()
       if (today < dateCharge) {

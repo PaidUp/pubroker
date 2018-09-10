@@ -44,9 +44,9 @@ function reduceInvoices (invoices, beneficiaries, users) {
       playerName: beneficiary ? beneficiary.firstName + ' ' + beneficiary.lastName : '',
       amount: invoice.price,
       refund: 0,
-      processingFee: invoice.stripeFee,
+      processingFee: getProcessingFees(invoice),
       paidupFee: invoice.paidupFee,
-      totalFee: invoice.totalFee,
+      totalFee: getTotalFees(invoice),
       tags: invoice.tags,
       paymentMethodBrand: invoice.paymentDetails.brand,
       paymentMethodLast4: invoice.paymentDetails.last4,
@@ -89,6 +89,16 @@ function reduceCredits (credits, beneficiaries, users) {
     return resp
   })
   return mapped
+}
+
+function getProcessingFees (invoice) {
+  if (invoice.unbundle && invoice.paymentDetails.paymentMethodtype === 'bank_account') return 0
+  return invoice.stripeFee
+}
+
+function getTotalFees (invoice) {
+  if (invoice.unbundle && invoice.paymentDetails.paymentMethodtype === 'bank_account') return invoice.paidupFee
+  return invoice.totalFee
 }
 
 function reducePreorders (preorders, beneficiaries, users) {

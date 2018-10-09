@@ -1,6 +1,6 @@
 import { GraphQLScalarType } from 'graphql'
 import { Kind } from 'graphql/language'
-import CommerceService from '../service/commerce'
+import { CommerceService } from '@/service'
 import moment from 'moment'
 
 const resolvers = {

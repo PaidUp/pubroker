@@ -7,7 +7,7 @@
     "start": "node dist/build.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "export NODE_ENV=local && webpack --watch",
-    "compile": "babel --source-maps -d compile/ src/",
+    "compile": "babel --source-maps -d compile/ server/",
     "webpack": "webpack"
   },
   "repository": {
@@ -22,15 +22,21 @@
   "homepage": "https://github.com/PaidUp/PUBroker#readme",
   "dependencies": {
     "compression": "^1.7.3",
+    "connect": "^3.6.6",
     "cors": "^2.8.4",
+    "email-validator": "^2.0.4",
     "express": "^4.16.3",
+    "fast-csv": "^2.4.1",
     "graphql": "^0.13.2",
     "graphql-server-express": "^1.4.0",
     "graphql-tools": "^3.1.1",
+    "json2csv": "^4.2.1",
     "moment": "^2.22.2",
+    "multer": "^1.4.0",
     "node-fetch": "^2.2.0",
     "numeral": "^2.0.6",
-    "pu-common": "git+ssh://git@github.com/PaidUp/PUCommon.git#0.19.11"
+    "pu-common": "git+ssh://git@github.com:PaidUp/PUCommon.git#0.20.0",
+    "randomstring": "^1.1.5"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

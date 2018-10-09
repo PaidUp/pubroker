@@ -26,7 +26,7 @@ routes(app)
 
 // Start server
 var server = app.listen(config.port, config.ip, function () {
-  Logger.info(`pu-user listening on ${config.port}, in ${app.get('env')} mode`)
+  Logger.info(`pu-broker listening on ${config.port}, in ${app.get('env')} mode`)
 })
 
 process.on('exit', (cb) => {

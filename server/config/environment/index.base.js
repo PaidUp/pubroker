@@ -31,6 +31,13 @@ let all = {
     payment: 'http://localhost:9004/api/v1/payment',
     organization: 'http://localhost:9002/api/v1/organization',
     commerce: 'http://localhost:9003/api/v1/commerce'
+  },
+  email: {
+    options: {
+      apiKey: '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',
+      fromName: 'Support',
+      fromEmail: 'support@getpaidup.com'
+    }
   }
 }
 

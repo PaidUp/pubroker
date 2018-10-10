@@ -3,4 +3,5 @@ node_modules
 *.retry
 dist/
 .idea
+compile
 src/config/environment/index.js

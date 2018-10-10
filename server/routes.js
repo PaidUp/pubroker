@@ -18,7 +18,7 @@ export default function (app) {
     passHeader: `'x-api-key': '${config.api.key}'`
   }))
 
-  app.use('/api/v1/organization', api)
+  app.use('/api/v1/broker', api)
 
   app.route('/*').get(function (request, response) {
     response.status(200).json({ PU: 'Broker!!!' })

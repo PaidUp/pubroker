@@ -36,6 +36,7 @@ export default class CreditController {
             amount,
             status
           } = row
+          Logger.info('Row: ' + JSON.stringify(row))
           UserService.signup({firstName: parentFirstName, lastName: parentLastName, email: parentEmail, phone: parentPhoneNumber}).then(user => {
             if (user.errors) {
               row.parentResult = 'Parent exists.'
@@ -52,6 +53,7 @@ export default class CreditController {
               firstName: beneficiaryFirstName,
               lastName: beneficiaryLastName,
               assigneesEmail: parentEmail}).then(beneficiaryResult => {
+              Logger.info('beneficiaryResult: ' + JSON.stringify(beneficiaryResult))
               row.beneficiaryResult = beneficiaryResult.message
 
               const seasonObj = organizationObj.seasons[season]
@@ -88,6 +90,7 @@ export default class CreditController {
                 return next(null, row)
               })
             }).catch(reason => {
+              Logger.info(reason)
               row.beneficiaryResult = reason
               return next(null, row)
             })

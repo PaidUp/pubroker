@@ -1,4 +1,5 @@
 import { Logger, Email, HandlerResponse as hr } from 'pu-common'
+import moment from 'moment'
 import stream from 'stream'
 import csv from 'fast-csv'
 import { Parser as Json2csvParser } from 'json2csv'
@@ -21,6 +22,7 @@ export default class CreditController {
         .fromStream(bufferStream, {headers: true})
         .transform((row, next) => {
           const tags = row.tags ? row.tags.split('|') : []
+          const dateCharge = row.date ? moment(row.date, 'MM-DD-YYYY') : new Date()
           const {
             beneficiaryFirstName,
             beneficiaryLastName,
@@ -80,6 +82,7 @@ export default class CreditController {
                 organizationId: organizationObj._id,
                 season: seasonObj._id,
                 status,
+                dateCharge,
                 tags}).then(credit => {
                 row.creditResult = 'Credit added.'
                 return next(null, row)

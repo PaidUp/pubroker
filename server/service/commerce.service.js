@@ -156,7 +156,7 @@ export default class CommerceService {
     })
   }
 
-  static addCreditMemo ({ label, description, price, beneficiaryId, assigneeEmail, productId, productName, organizationId, season, status, dateCharge = new Date(), tags }) {
+  static addCreditMemo ({ label, description, price, beneficiaryId, assigneeEmail, productId, productName, organizationId, season, status, dateCharge, tags }) {
     const body = { label, description, price, beneficiaryId, assigneeEmail, productId, productName, organizationId, season, status, dateCharge, tags }
     return trae(`${config.api.commerce}/credit`, 'POST', body)
   }

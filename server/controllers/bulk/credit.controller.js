@@ -22,7 +22,7 @@ export default class CreditController {
         .fromStream(bufferStream, {headers: true})
         .transform((row, next) => {
           const tags = row.tags ? row.tags.split('|') : []
-          const dateCharge = row.date ? moment(row.date, 'MM-DD-YYYY') : new Date()
+          const dateCharge = row.date ? moment.utc(row.date, 'MM-DD-YYYY').add(12, 'hours') : new Date()
           const {
             beneficiaryFirstName,
             beneficiaryLastName,

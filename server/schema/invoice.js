@@ -2,7 +2,7 @@ module.exports = `
   # This is an Invoice
   type Invoice {
     # mongo Id
-    id: ID!
+    _id: ID!
     # generated id
     invoiceId: String!
     label: String!
@@ -23,7 +23,7 @@ module.exports = `
     stripeFee: Float!
     totalFee: Float!
     notes: [String]
-    user: User!
+    user: UserInvoice!
     processingFees: ProcessingFees!
     paymentDetails: PaymentDetails!
     payFees: PayFees!
@@ -32,7 +32,7 @@ module.exports = `
     status: Status!
   }
 
-  type User {
+  type UserInvoice {
     userFirstName: String!
     userLastName: String!
     userEmail: String!

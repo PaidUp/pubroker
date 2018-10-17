@@ -1,6 +1,6 @@
 import { GraphQLScalarType } from 'graphql'
 import { Kind } from 'graphql/language'
-import { CommerceService } from '@/service'
+import { CommerceService, SearchService } from '@/service'
 import moment from 'moment'
 
 const resolvers = {
@@ -11,14 +11,11 @@ const resolvers = {
     payments: (_, args) => {
       return CommerceService.payments(args.organizationId, args.seasonId)
     },
-    buscar: (_, args) => {
-      return [
-        '',
-        ''
-      ]
+    search: (_, args) => {
+      return SearchService.exec(args.criteria)
     }
   },
-  ResultadoBusqueda: {
+  Result: {
     __resolveType: (obj) => {
       if (obj.nombre) return 'Profesor'
       return 'Curso'

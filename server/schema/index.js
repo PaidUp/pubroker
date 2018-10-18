@@ -5,6 +5,8 @@ const Beneficiary = require('./beneficiary')
 const Payment = require('./payment')
 const User = require('./user')
 const SearchResult = require('./searchResult')
+const Preorder = require('./preorder')
+const Credit = require('./credit')
 
 const rootQuery = `
   scalar Date
@@ -20,7 +22,7 @@ const rootQuery = `
 `
 
 const schema = makeExecutableSchema({
-  typeDefs: [rootQuery, Invoice, Payment, Beneficiary, User, SearchResult],
+  typeDefs: [rootQuery, Invoice, Payment, Beneficiary, User, SearchResult, Preorder, Credit],
   resolvers
 })
 

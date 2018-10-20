@@ -2,19 +2,19 @@ module.exports = `
   # This is an User
   type User {
     # mongo Id
-    _id: ID!
+    _id: ID
     # generated id
-    firstName: String!
-    lastName: String!
+    firstName: String
+    lastName: String
     birthDate: Date
-    email: String!
-    type: TypeUser!
+    email: String
+    type: TypeUser
     facebookId: String
     organizationId: String
     externalCustomerId: String
     phone: String
     contacts: [Contact]
-    roles: [Roles!]
+    roles: [Roles]
   }
 
   type Contact {

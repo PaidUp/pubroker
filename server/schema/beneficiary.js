@@ -2,21 +2,16 @@ module.exports = `
   # This is an Beneficiary
   type Beneficiary {
     # mongo Id
-    _id: ID!
+    _id: ID
     # generated id
-    organizationId: String!
-    organizationName: String!
-    type: String!
-    firstName: String!
-    lastName: String!
-    description: String!
+    organizationId: String
+    organizationName: String
+    type: String
+    firstName: String
+    lastName: String
+    description: String
     assigneesEmail: [String]
-    status: StatusBeneficiary!
+    status: String
     
-  }
-
-  enum StatusBeneficiary {
-    active
-    inactive
   }
 `

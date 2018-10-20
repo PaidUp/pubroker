@@ -2,26 +2,19 @@ module.exports = `
   # This is an Credit
   type Credit {
     # mongo Id
-    _id: ID!
+    _id: ID
     # generated id
-    memoId: String!
-    label: String!
-    description: String!
-    price: Float!
-    beneficiaryId: String!
-    assigneeEmail: String!
+    memoId: String
+    label: String
+    description: String
+    price: Float
+    beneficiaryId: String
+    assigneeEmail: String
     organizationId: String
-    productId: String!
-    productName: String!
-    season: String!,
+    productId: String
+    productName: String
+    season: String,
     tags: [String]
-    status: StatusCredit
-  }
-
-  enum StatusCredit {
-    paid
-    credited,
-    refunded,
-    discount
+    status: String
   }
 `

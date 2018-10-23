@@ -3,7 +3,7 @@ import { Kind } from 'graphql/language'
 import { CommerceService, SearchService } from '@/service'
 import moment from 'moment'
 import UserService from '../service/user.service'
-import {api, coach} from '@/util/requireRole'
+import {coach} from '@/util/requireRole'
 
 const resolvers = {
   Query: {
@@ -13,9 +13,9 @@ const resolvers = {
     payments: coach((_, args) => {
       return CommerceService.payments(args.organizationId, args.seasonId)
     }),
-    search: api((_, args) => {
+    search: (_, args) => {
       return SearchService.exec(args.criteria)
-    })
+    }
   },
   Result: {
     __resolveType: (obj) => {

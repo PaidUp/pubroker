@@ -6,12 +6,14 @@ export default class SearchService {
     const result = await Promise.all([
       trae(`${config.api.user}/search?criteria=${encodeURI(criteria)}`, 'GET'),
       trae(`${config.api.organization}/beneficiary/search?criteria=${encodeURI(criteria)}`, 'GET'),
-      trae(`${config.api.commerce}/invoice/search?criteria=${encodeURI(criteria)}`, 'GET')
+      trae(`${config.api.commerce}/search?criteria=${encodeURI(criteria)}`, 'GET')
     ]).then(results => {
       return {
         users: results[0],
         beneficiaries: results[1],
-        invoices: results[2]
+        invoices: results[2].invoices,
+        credits: results[2].credits,
+        preorders: results[2].preorders
       }
     })
     return result

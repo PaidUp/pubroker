@@ -3,16 +3,16 @@ module.exports = `
   type Payment {
     # generated id
     receiptId: String
-    type: String!
+    type: String
     chargeDate: String
     receiptDate: String
-    description: String!
-    program: String!
+    description: String
+    program: String
     status: String
-    parentName: String!
-    parentEmail: String!
+    parentName: String
+    parentEmail: String
     parentPhone: String
-    playerName: String!
+    playerName: String
     amount: Float
     refund: Float
     processingFee: Float
@@ -21,6 +21,6 @@ module.exports = `
     tags: [String]
     paymentMethodBrand: String
     paymentMethodLast4: String
-    index: String!
+    index: String
   }
 `

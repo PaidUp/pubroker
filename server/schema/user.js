@@ -28,6 +28,11 @@ module.exports = `
     zipCode: String
   }
 
+  type SignUpResult {
+    token: String!
+    user: User!
+  }
+
   enum Roles {
     parent
     coach
@@ -40,5 +45,14 @@ module.exports = `
     organization
     api
     service 
+  }
+
+  input NewUser {
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    type: String
+    password: String
   }
 `

@@ -17,6 +17,10 @@ const rootQuery = `
     search(criteria: String!): SearchResult
   }
 
+  type Mutation {
+    userSignUp(user: NewUser): SignUpResult
+  }
+
 `
 
 const schema = makeExecutableSchema({

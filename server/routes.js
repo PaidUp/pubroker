@@ -9,8 +9,14 @@ export default function (app) {
   app.use(cors())
 
   app.use('/graphql',
-    auth.validate,
-    graphqlExpress({ schema })
+    auth.populateUser,
+    // graphqlExpress({ schema })
+    graphqlExpress(request => {
+      return {
+        schema,
+        context: { user: request.user }
+      }
+    })
   )
 
   app.use('/graphiql', graphiqlExpress({

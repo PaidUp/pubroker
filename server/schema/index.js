@@ -21,6 +21,7 @@ const rootQuery = `
 
   type Mutation {
     userSignUp(user: NewUser): SignUpResult
+    userFbSignUp(user: NewFbUser): SignUpResult
   }
 
 `

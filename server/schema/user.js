@@ -55,4 +55,10 @@ module.exports = `
     type: String
     password: String
   }
+
+  input NewFbUser {
+    accessToken: String!
+    rememberMe: Boolean
+    phone: String
+  }
 `

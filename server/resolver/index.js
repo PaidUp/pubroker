@@ -33,6 +33,16 @@ const resolvers = {
       }).catch(reason => {
         throw new Error(reason)
       })
+    },
+    userFbSignUp: (_, args) => {
+      return UserService.fbSignup(args.user).then(user => {
+        if (user.message) {
+          throw new Error(user.message)
+        }
+        return user
+      }).catch(reason => {
+        throw new Error(reason)
+      })
     }
   },
   Date: new GraphQLScalarType({

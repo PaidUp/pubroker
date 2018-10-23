@@ -7,13 +7,13 @@ import { Roles, validate } from '@/util/requireRole'
 
 const resolvers = {
   Query: {
-    invoices: validate([Roles.CHAP])((_, args) => {
+    invoices: validate([Roles.CHAP, Roles.API])((_, args) => {
       return CommerceService.invoices(args.organizationId, args.seasonId)
     }),
-    payments: validate([Roles.COACH])((_, args) => {
+    payments: validate([Roles.COACH, Roles.API])((_, args) => {
       return CommerceService.payments(args.organizationId, args.seasonId)
     }),
-    search: validate([Roles.CHAP])((_, args) => {
+    search: validate([Roles.CHAP, Roles.API])((_, args) => {
       return SearchService.exec(args.criteria)
     })
   },
@@ -24,7 +24,7 @@ const resolvers = {
     }
   },
   Mutation: {
-    userSignUp: validate([Roles.CHAP], (_, args) => {
+    userSignUp: (_, args) => {
       return UserService.signup(args.user).then(user => {
         if (user.message) {
           throw new Error(user.message)
@@ -33,7 +33,7 @@ const resolvers = {
       }).catch(reason => {
         throw new Error(reason)
       })
-    })
+    }
   },
   Date: new GraphQLScalarType({
     name: 'Date',

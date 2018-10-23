@@ -1,19 +1,19 @@
-const Roles = {
+export const Roles = {
+  ALL: 'all',
   PARENT: 'parent',
   COACH: 'coach',
   CHAP: 'chap',
   API: 'api'
 }
 
-export const requiresRole = role => resolver => async (_, args, context, ...rest) => {
+// const rolesArr = [Roles.all, Roles.parent, Roles.coach, Roles.chap, Roles.api]
+
+export const validate = rolesArr => resolver => async (_, args, context, ...rest) => {
+  console.log('rolesArr: ', rolesArr)
   console.log('context.user: ', context.user)
-  if (context.user.roles.indexOf(role) < 0) {
+  if (!context.user.roles.some(r => rolesArr.includes(r))) {
     throw new Error('Not enougth permissions to access this')
   }
   const result = await resolver(...[_, args, context, ...rest])
   return result
 }
-export const parent = requiresRole(Roles.PARENT)
-export const coach = requiresRole(Roles.COACH)
-export const chap = requiresRole(Roles.CHAP)
-export const api = requiresRole(Roles.API)

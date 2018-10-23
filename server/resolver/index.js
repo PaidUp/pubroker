@@ -3,19 +3,19 @@ import { Kind } from 'graphql/language'
 import { CommerceService, SearchService } from '@/service'
 import moment from 'moment'
 import UserService from '../service/user.service'
-import {coach} from '@/util/requireRole'
+import { Roles, validate } from '@/util/requireRole'
 
 const resolvers = {
   Query: {
-    invoices: (_, args) => {
+    invoices: validate([Roles.CHAP])((_, args) => {
       return CommerceService.invoices(args.organizationId, args.seasonId)
-    },
-    payments: coach((_, args) => {
+    }),
+    payments: validate([Roles.COACH])((_, args) => {
       return CommerceService.payments(args.organizationId, args.seasonId)
     }),
-    search: (_, args) => {
+    search: validate([Roles.CHAP])((_, args) => {
       return SearchService.exec(args.criteria)
-    }
+    })
   },
   Result: {
     __resolveType: (obj) => {
@@ -24,7 +24,7 @@ const resolvers = {
     }
   },
   Mutation: {
-    userSignUp: (_, args) => {
+    userSignUp: validate([Roles.CHAP], (_, args) => {
       return UserService.signup(args.user).then(user => {
         if (user.message) {
           throw new Error(user.message)
@@ -33,7 +33,7 @@ const resolvers = {
       }).catch(reason => {
         throw new Error(reason)
       })
-    }
+    })
   },
   Date: new GraphQLScalarType({
     name: 'Date',

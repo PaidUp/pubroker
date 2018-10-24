@@ -2,8 +2,7 @@ import { GraphQLScalarType } from 'graphql'
 import { Kind } from 'graphql/language'
 import { CommerceService, SearchService } from '@/service'
 import moment from 'moment'
-import UserService from '../service/user.service'
-import PreorderService from '../service/preorder.service'
+import { UserService, PreorderService, BeneficiaryService } from '../service'
 import { Roles, validate } from '@/util/requireRole'
 
 const resolvers = {
@@ -32,7 +31,10 @@ const resolvers = {
         throw new Error(response.message)
       }
       if (emailSuggested && response.user.email !== emailSuggested) {
-        await PreorderService.updateMany(emailSuggested, response.user.email)
+        await Promise.all([
+          BeneficiaryService.updateAssigneesEmail(emailSuggested, response.user.email),
+          PreorderService.updateMany(emailSuggested, response.user.email)
+        ])
       }
       return response
     },
@@ -43,7 +45,10 @@ const resolvers = {
         throw new Error(response.message)
       }
       if (emailSuggested && response.user.email !== emailSuggested) {
-        await PreorderService.updateMany(emailSuggested, response.user.email)
+        await Promise.all([
+          BeneficiaryService.updateAssigneesEmail(emailSuggested, response.user.email),
+          PreorderService.updateMany(emailSuggested, response.user.email)
+        ])
       }
       return response
     }

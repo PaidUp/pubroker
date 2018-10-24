@@ -3,6 +3,7 @@ import { Kind } from 'graphql/language'
 import { CommerceService, SearchService } from '@/service'
 import moment from 'moment'
 import UserService from '../service/user.service'
+import PreorderService from '../service/preorder.service'
 import { Roles, validate } from '@/util/requireRole'
 
 const resolvers = {
@@ -24,25 +25,27 @@ const resolvers = {
     }
   },
   Mutation: {
-    userSignUp: (_, args) => {
-      return UserService.signup(args.user).then(user => {
-        if (user.message) {
-          throw new Error(user.message)
-        }
-        return user
-      }).catch(reason => {
-        throw new Error(reason)
-      })
+    userSignUp: async (_, args) => {
+      const emailSuggested = args.user.emailSuggested
+      const response = await UserService.signup(args.user)
+      if (response.message) {
+        throw new Error(response.message)
+      }
+      if (emailSuggested && response.user.email !== emailSuggested) {
+        await PreorderService.updateMany(emailSuggested, response.user.email)
+      }
+      return response
     },
-    userFbSignUp: (_, args) => {
-      return UserService.fbSignup(args.user).then(user => {
-        if (user.message) {
-          throw new Error(user.message)
-        }
-        return user
-      }).catch(reason => {
-        throw new Error(reason)
-      })
+    userFbSignUp: async (_, args) => {
+      const emailSuggested = args.user.emailSuggested
+      const response = await UserService.fbSignup(args.user)
+      if (response.message) {
+        throw new Error(response.message)
+      }
+      if (emailSuggested && response.user.email !== emailSuggested) {
+        await PreorderService.updateMany(emailSuggested, response.user.email)
+      }
+      return response
     }
   },
   Date: new GraphQLScalarType({

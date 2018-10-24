@@ -51,6 +51,7 @@ module.exports = `
     firstName: String!
     lastName: String!
     email: String!
+    emailSuggested: String
     phone: String
     type: String
     password: String
@@ -59,6 +60,7 @@ module.exports = `
   input NewFbUser {
     accessToken: String!
     rememberMe: Boolean
+    emailSuggested: String!
     phone: String
   }
 `

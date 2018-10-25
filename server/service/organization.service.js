@@ -22,6 +22,30 @@ export default class OrganizationService {
     return mapOrganizations
   }
 
+  static async mapNameOrganizations () {
+    let orgs = await trae(`${config.api.organization}`, 'GET')
+    return orgs.reduce((curr, organization) => {
+      curr[organization.businessName] = organization
+      return curr
+    }, {})
+  }
+
+  static async mapPlans () {
+    let products = await trae(`${config.api.organization}/product/all`, 'GET')
+    return products.reduce((curr, product) => {
+      curr[product._id] = product
+      return curr
+    }, {})
+  }
+
+  static async mapProducts () {
+    let plans = await trae(`${config.api.organization}/plan/all`, 'GET')
+    return plans.reduce((curr, plan) => {
+      curr[plan._id] = plan
+      return curr
+    }, {})
+  }
+
   static async createBeneficiary ({organizationId, organizationName, firstName, lastName, assigneesEmail}) {
     return trae(`${config.api.organization}/beneficiary/create`, 'POST', {organizationId, organizationName, firstName, lastName, assigneesEmail})
   }

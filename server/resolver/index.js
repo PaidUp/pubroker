@@ -3,7 +3,7 @@ import { GraphQLUpload } from 'apollo-server-express'
 import { Kind } from 'graphql/language'
 import { CommerceService, SearchService } from '@/service'
 import moment from 'moment'
-import { UserService, PreorderService, BeneficiaryService } from '../service'
+import { UserService, PreorderService, BeneficiaryService, PreorderAssignmentService } from '../service'
 import { Roles, validate } from '@/util/requireRole'
 
 const resolvers = {
@@ -55,19 +55,9 @@ const resolvers = {
       return response
     },
     async preOrderAssignment (parent, { file }) {
-      console.log('file: ', file)
-      const { stream, filename, mimetype, encoding } = await file
-      stream.on('data', (chunk) => { console.log(chunk.toString()) })
+      PreorderAssignmentService.exec(file)
 
-      // 1. Validate file metadata.
-
-      // 2. Stream file contents into local filesystem or cloud storage:
-      // https://nodejs.org/api/stream.html
-
-      // 3. Record the file upload in your DB.
-      // const id = await recordFile( … )
-
-      return { stream, filename, mimetype, encoding }
+      return { }
     }
   },
   Date: new GraphQLScalarType({

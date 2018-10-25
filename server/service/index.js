@@ -4,6 +4,7 @@ import OrganizationService from './organization.service'
 import SearchService from './search.service'
 import PreorderService from './preorder.service'
 import BeneficiaryService from './beneficiary.service'
+import PreorderAssignmentService from './bulk/preorderAssignment.service'
 
 export {
   CommerceService,
@@ -11,5 +12,6 @@ export {
   OrganizationService,
   SearchService,
   PreorderService,
-  BeneficiaryService
+  BeneficiaryService,
+  PreorderAssignmentService
 }

@@ -9,4 +9,8 @@ export default class PreorderService {
     }
     return trae(`${config.api.commerce}/preorder/many`, 'PUT', body)
   }
+
+  static create (body) {
+    return trae(`${config.api.commerce}/preorder`, 'POST', body)
+  }
 }

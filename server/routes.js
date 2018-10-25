@@ -1,31 +1,24 @@
-import cors from 'cors'
-import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
-import schema from './schema'
-import { auth } from 'pu-common'
-import config from '@/config/environment'
 import api from '@/api'
+import { auth } from 'pu-common'
+import { ApolloServer } from 'apollo-server-express'
+import schema from './schema'
+
+const path = '/graphql'
+
+function createApolloServer (app) {
+  const server = new ApolloServer({
+    playground: app.get('env') !== 'production',
+    schema,
+    context: ({req, res}) => ({
+      user: req.user
+    })})
+  server.applyMiddleware({ app, path })
+}
 
 export default function (app) {
-  app.use(cors())
-
-  app.use('/graphql',
-    auth.populateUser,
-    // graphqlExpress({ schema })
-    graphqlExpress(request => {
-      return {
-        schema,
-        context: { user: request.user }
-      }
-    })
-  )
-
-  app.use('/graphiql', graphiqlExpress({
-    endpointURL: '/graphql',
-    passHeader: `'x-api-key': '${config.api.key}'`
-  }))
-
+  app.use(path, auth.populateUser)
+  createApolloServer(app)
   app.use('/api/v1/broker', api)
-
   app.route('/*').get(function (request, response) {
     response.status(200).json({ PU: 'Broker!!!' })
   })

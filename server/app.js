@@ -22,10 +22,11 @@ pmx.init({
 const app = express()
 // const server = http.createServer(app)
 configExpress(app)
-routes(app)
 
+// configure routes and graphql
+routes(app)
 // Start server
-var server = app.listen(config.port, config.ip, function () {
+app.listen(config.port, config.ip, function () {
   Logger.info(`pu-broker listening on ${config.port}, in ${app.get('env')} mode`)
 })
 
@@ -42,5 +43,3 @@ process.on('uncaughtException', (err) => {
     process.exit(1)
   }
 })
-
-export default server

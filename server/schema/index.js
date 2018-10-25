@@ -1,4 +1,5 @@
-const { makeExecutableSchema } = require('graphql-tools')
+import file from './typeDefs/file'
+import { makeExecutableSchema } from 'apollo-server-express'
 const resolvers = require('../resolver')
 const Invoice = require('./invoice')
 const Beneficiary = require('./beneficiary')
@@ -9,6 +10,7 @@ const Preorder = require('./preorder')
 const Credit = require('./credit')
 
 const rootQuery = `
+  scalar Upload
   scalar Date
   
   union Result = Invoice | Beneficiary
@@ -22,12 +24,13 @@ const rootQuery = `
   type Mutation {
     userSignUp(user: NewUser): SignUpResult
     userFbSignUp(user: NewFbUser): SignUpResult
+    preOrderAssignment(file: Upload!): File!
   }
 
 `
 
 const schema = makeExecutableSchema({
-  typeDefs: [rootQuery, Invoice, Payment, Beneficiary, User, SearchResult, Preorder, Credit],
+  typeDefs: [rootQuery, Invoice, Payment, Beneficiary, User, SearchResult, Preorder, Credit, file],
   resolvers
 })
 

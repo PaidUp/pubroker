@@ -1,4 +1,5 @@
 import { GraphQLScalarType } from 'graphql'
+import { GraphQLUpload } from 'apollo-server-express'
 import { Kind } from 'graphql/language'
 import { CommerceService, SearchService } from '@/service'
 import moment from 'moment'
@@ -6,6 +7,7 @@ import { UserService, PreorderService, BeneficiaryService } from '../service'
 import { Roles, validate } from '@/util/requireRole'
 
 const resolvers = {
+  Upload: GraphQLUpload,
   Query: {
     invoices: validate([Roles.CHAP, Roles.API])((_, args) => {
       return CommerceService.invoices(args.organizationId, args.seasonId)
@@ -24,9 +26,9 @@ const resolvers = {
     }
   },
   Mutation: {
-    userSignUp: async (_, args) => {
-      const emailSuggested = args.user.emailSuggested
-      const response = await UserService.signup(args.user)
+    userSignUp: async (parent, { user }) => {
+      const emailSuggested = user.emailSuggested
+      const response = await UserService.signup(user)
       if (response.message) {
         throw new Error(response.message)
       }
@@ -38,9 +40,9 @@ const resolvers = {
       }
       return response
     },
-    userFbSignUp: async (_, args) => {
-      const emailSuggested = args.user.emailSuggested
-      const response = await UserService.fbSignup(args.user)
+    userFbSignUp: async (parent, { user }) => {
+      const emailSuggested = user.emailSuggested
+      const response = await UserService.fbSignup(user)
       if (response.message) {
         throw new Error(response.message)
       }
@@ -51,6 +53,21 @@ const resolvers = {
         ])
       }
       return response
+    },
+    async preOrderAssignment (parent, { file }) {
+      console.log('file: ', file)
+      const { stream, filename, mimetype, encoding } = await file
+      stream.on('data', (chunk) => { console.log(chunk.toString()) })
+
+      // 1. Validate file metadata.
+
+      // 2. Stream file contents into local filesystem or cloud storage:
+      // https://nodejs.org/api/stream.html
+
+      // 3. Record the file upload in your DB.
+      // const id = await recordFile( … )
+
+      return { stream, filename, mimetype, encoding }
     }
   },
   Date: new GraphQLScalarType({

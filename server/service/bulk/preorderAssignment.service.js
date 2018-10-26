@@ -28,10 +28,10 @@ export default class PreorderAssignmentService {
         .fromStream(stream, {headers: true})
         .transform((row, next) => {
           const ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
+          const parentEmail = row.parentEmail.toLowerCase()
           const {
             beneficiaryFirstName,
             beneficiaryLastName,
-            parentEmail,
             parentFirstName,
             parentLastName,
             parentPhoneNumber,

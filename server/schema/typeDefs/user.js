@@ -52,15 +52,15 @@ export default `
     lastName: String!
     email: String!
     emailSuggested: String
-    phone: String
+    phone: String!
     type: String
-    password: String
+    password: String!
   }
 
   input NewFbUser {
     accessToken: String!
     rememberMe: Boolean
-    emailSuggested: String!
-    phone: String
+    emailSuggested: String
+    phone: String!
   }
 `

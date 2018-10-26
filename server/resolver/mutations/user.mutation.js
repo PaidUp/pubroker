@@ -3,7 +3,6 @@ import { UserService, PreorderService, BeneficiaryService } from '@/service'
 export const userSignUp = async (parent, { user }) => {
   const emailSuggested = user.emailSuggested
   const response = await UserService.signup(user)
-  console.log('response: ', response)
   if (response.message) {
     throw new Error(response.message)
   }

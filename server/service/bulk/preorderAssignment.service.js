@@ -11,18 +11,17 @@ const email = new Email(config.email.options)
 
 function replaceText (values, text) {
   Object.keys(values).forEach(key => {
-    text = text.replace(new RegExp('{{' + key + '}}'), values[key])
+    text = text.replace(new RegExp('{{' + key + '}}', 'g'), values[key])
   })
   return text
 }
 
 export default class PreorderAssignmentService {
-  static async exec (file, subject, comment) {
+  static async exec (fileName, stream, subject, comment, user) {
     let mapOrganizations = await OrganizationService.mapNameOrganizations()
     let mapPlans = await OrganizationService.mapPlans()
     let mapProducts = await OrganizationService.mapProducts()
-    const { stream } = await file
-    const chapUserEmail = 'req.user.email' // TODO: set email chap user
+    const chapUserEmail = user.email
     let result = []
     try {
       csv
@@ -44,9 +43,9 @@ export default class PreorderAssignmentService {
             cfTicketReasonCategory,
             isPublic
           } = row
-          Logger.info('Row: ' + JSON.stringify(row))
+          // Logger.info('Row: ' + JSON.stringify(row))
           UserService.signup({firstName: parentFirstName, lastName: parentLastName, email: parentEmail, phone: parentPhoneNumber}).then(user => {
-            if (user.errors) {
+            if (user.message) {
               row.parentResult = 'Parent exists.'
             } else {
               row.parentResult = 'Parent added.'
@@ -61,10 +60,10 @@ export default class PreorderAssignmentService {
               firstName: beneficiaryFirstName,
               lastName: beneficiaryLastName,
               assigneesEmail: parentEmail}).then(beneficiaryResult => {
-              Logger.info('beneficiaryResult: ' + JSON.stringify(beneficiaryResult))
+              // Logger.info('beneficiaryResult: ' + JSON.stringify(beneficiaryResult))
               row.beneficiaryResult = beneficiaryResult.message
-
               const plan = mapPlans[paymentPlanId]
+
               if (!plan) {
                 row.preorderResult = 'Payment plan does not exist'
                 return next(null, row)
@@ -93,7 +92,7 @@ export default class PreorderAssignmentService {
                 status: 'active'
               }
               PreorderService.create(entity).then(po => {
-                row.preorderResul = 'Preorder added'
+                row.preorderResult = 'Preorder added'
                 row.preOrderId = po._id
 
                 ZendeskService.userCreateOrUpdate({
@@ -130,16 +129,16 @@ export default class PreorderAssignmentService {
                   return next(null, row)
                 })
               }).catch(reason => {
-                row.preorderResul = reason.toString()
+                row.preorderResult = reason.toString()
                 return next(null, row)
               })
             }).catch(reason => {
-              Logger.info(reason)
-              row.beneficiaryResult = reason
+              Logger.error(reason)
+              row.beneficiaryResult = reason.toString()
               return next(null, row)
             })
           }).catch(reason => {
-            row.parentResult = reason
+            row.parentResult = reason.toString()
             return next(null, row)
           })
         })
@@ -147,30 +146,36 @@ export default class PreorderAssignmentService {
           result.push(data)
         })
         .on('end', () => {
-          const fields = ['beneficiaryFirstName',
+          const fields = [
+            'beneficiaryFirstName',
             'beneficiaryLastName',
             'parentEmail',
             'parentFirstName',
             'parentLastName',
             'parentPhoneNumber',
             'organization',
-            'season',
-            'productName',
-            'label',
-            'description',
-            'amount',
-            'status',
+            'paymentPlanId',
+            'ticketStatus',
+            'ticketTags',
+            'ticketAssignee',
+            'ticketPriority',
+            'cfTicketReasonCategory',
+            'isPublic',
+            'preOrderId',
             'parentResult',
             'beneficiaryResult',
-            'creditResult']
+            'preorderResult',
+            'zendeskParentInsertResult',
+            'zendeskTicketResult'
+          ]
           const json2csvParser = new Json2csvParser({ fields })
           const csv = json2csvParser.parse(result)
           const attachment = {
             content: Buffer.from(csv).toString('base64'),
-            fileName: 'CreditResult.csv',
+            fileName: 'Result - ' + fileName,
             type: 'application/octet-stream'
           }
-          email.sendEmail(chapUserEmail, 'Credit Result', 'Hi,<br> The credit bulk result was attached', [attachment])
+          email.sendEmail(chapUserEmail, 'Preorder Assignment Result', 'Hi,<br> The preorder assignment result was attached', [attachment])
         })
     } catch (error) {
       Logger.critical(error)

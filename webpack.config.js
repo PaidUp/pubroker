@@ -5,7 +5,7 @@ const NodemonPlugin = require('nodemon-webpack-plugin')
 let wpc = {
   target: 'node',
   externals: [nodeExternals()],
-  entry: './server/app.js',
+  entry: ['babel-polyfill', './server/app.js'],
   devtool: '#eval',
 
   output: {
@@ -15,6 +15,16 @@ let wpc = {
   },
 
   module: {
+    loaders: [
+      {
+        test: /\.js?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        query: {
+          presets: [ 'stage-2' ]
+        }
+      }
+    ],
     rules: [
       {
         test: /\.(js)$/,
@@ -25,7 +35,10 @@ let wpc = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        query: {
+          presets: [ 'es2015', 'stage-2' ]
+        }
       }
     ]
   },

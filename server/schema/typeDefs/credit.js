@@ -1,4 +1,4 @@
-module.exports = `
+export default `
   # This is an Credit
   type Credit {
     # mongo Id

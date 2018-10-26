@@ -1,4 +1,4 @@
-module.exports = `
+export default `
   # This is an Invoice
   type Invoice {
     # mongo Id

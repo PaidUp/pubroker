@@ -1,4 +1,4 @@
-const SearchResult = `
+export default `
 type SearchResult {
   users: [User]
   beneficiaries: [Beneficiary]
@@ -7,4 +7,3 @@ type SearchResult {
   credits: [Credit]
 }
 `
-module.exports = SearchResult

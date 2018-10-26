@@ -1,4 +1,4 @@
-module.exports = `
+export default `
   # This is an Payment Report 
   type Payment {
     # generated id

@@ -1,4 +1,4 @@
-module.exports = `
+export default `
   # This is an Beneficiary
   type Beneficiary {
     # mongo Id
@@ -12,6 +12,5 @@ module.exports = `
     description: String
     assigneesEmail: [String]
     status: String
-    
   }
 `

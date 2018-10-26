@@ -30,7 +30,7 @@ export default class OrganizationService {
     }, {})
   }
 
-  static async mapPlans () {
+  static async mapProducts () {
     let products = await trae(`${config.api.organization}/product/all`, 'GET')
     return products.reduce((curr, product) => {
       curr[product._id] = product
@@ -38,12 +38,13 @@ export default class OrganizationService {
     }, {})
   }
 
-  static async mapProducts () {
+  static async mapPlans () {
     let plans = await trae(`${config.api.organization}/plan/all`, 'GET')
-    return plans.reduce((curr, plan) => {
+    let map = plans.reduce((curr, plan) => {
       curr[plan._id] = plan
       return curr
     }, {})
+    return map
   }
 
   static async createBeneficiary ({organizationId, organizationName, firstName, lastName, assigneesEmail}) {

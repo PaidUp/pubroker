@@ -15,16 +15,6 @@ let wpc = {
   },
 
   module: {
-    loaders: [
-      {
-        test: /\.js?$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: [ 'stage-2' ]
-        }
-      }
-    ],
     rules: [
       {
         test: /\.(js)$/,
@@ -37,7 +27,7 @@ let wpc = {
         loader: 'babel-loader',
         exclude: /node_modules/,
         query: {
-          presets: [ 'es2015', 'stage-2' ]
+          presets: [ 'stage-2' ]
         }
       }
     ]

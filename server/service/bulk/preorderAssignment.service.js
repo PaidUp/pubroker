@@ -17,7 +17,7 @@ function replaceText (values, text) {
 }
 
 export default class PreorderAssignmentService {
-  static async exec (fileName, stream, subject, comment, user) {
+  static async bulk (fileName, stream, subject, comment, user) {
     let mapOrganizations = await OrganizationService.mapNameOrganizations()
     let mapPlans = await OrganizationService.mapPlans()
     let mapProducts = await OrganizationService.mapProducts()

@@ -5,6 +5,7 @@ import SearchService from './search.service'
 import PreorderService from './preorder.service'
 import BeneficiaryService from './beneficiary.service'
 import PreorderAssignmentService from './bulk/preorderAssignment.service'
+import ImportCreditsService from './bulk/importCredits.service'
 
 export {
   CommerceService,
@@ -13,5 +14,6 @@ export {
   SearchService,
   PreorderService,
   BeneficiaryService,
-  PreorderAssignmentService
+  PreorderAssignmentService,
+  ImportCreditsService
 }

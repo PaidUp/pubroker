@@ -1,6 +1,5 @@
-import { Logger, Email, HandlerResponse as hr } from 'pu-common'
+import { Logger, Email } from 'pu-common'
 import moment from 'moment'
-import stream from 'stream'
 import csv from 'fast-csv'
 import { Parser as Json2csvParser } from 'json2csv'
 import { UserService, OrganizationService, CommerceService } from '@/service'
@@ -8,18 +7,14 @@ import config from '@/config/environment'
 
 const email = new Email(config.email.options)
 
-export default class CreditController {
-  static async bulk (req, res) {
-    if (!req.file) return hr.error(res, 'files is required', 422)
+export default class PreorderAssignmentService {
+  static async bulk (fileName, stream, user) {
     let mapOrganizations = await OrganizationService.organizations()
-    hr.send(res, {})
-    const chapUserEmail = req.user.email
+    const chapUserEmail = user.email
     let result = []
-    let bufferStream = new stream.PassThrough()
-    bufferStream.end(req.file.buffer)
     try {
       csv
-        .fromStream(bufferStream, {headers: true})
+        .fromStream(stream, {headers: true})
         .transform((row, next) => {
           const tags = row.tags ? row.tags.split('|') : []
           const dateCharge = row.date ? moment.utc(row.date, 'MM-DD-YYYY').add(12, 'hours') : new Date()
@@ -126,7 +121,7 @@ export default class CreditController {
           const csv = json2csvParser.parse(result)
           const attachment = {
             content: Buffer.from(csv).toString('base64'),
-            fileName: 'CreditResult.csv',
+            fileName: 'Result - ' + fileName,
             type: 'application/octet-stream'
           }
           email.sendEmail(chapUserEmail, 'Credit Result', 'Hi,<br> The credit bulk result was attached', [attachment])

@@ -43,7 +43,7 @@ export default class PreorderAssignmentService {
             cfTicketReasonCategory,
             isPublic
           } = row
-          // Logger.info('Row: ' + JSON.stringify(row))
+          Logger.info('Row: ' + JSON.stringify(row))
           UserService.signup({firstName: parentFirstName, lastName: parentLastName, email: parentEmail, phone: parentPhoneNumber}).then(user => {
             if (user.message) {
               row.parentResult = 'Parent exists.'
@@ -60,7 +60,7 @@ export default class PreorderAssignmentService {
               firstName: beneficiaryFirstName,
               lastName: beneficiaryLastName,
               assigneesEmail: parentEmail}).then(beneficiaryResult => {
-              // Logger.info('beneficiaryResult: ' + JSON.stringify(beneficiaryResult))
+              Logger.info('beneficiaryResult: ' + JSON.stringify(beneficiaryResult))
               row.beneficiaryResult = beneficiaryResult.message
               const plan = mapPlans[paymentPlanId]
 
@@ -121,19 +121,22 @@ export default class PreorderAssignmentService {
                     row.zendeskTicketResult = 'ticket created'
                     return next(null, row)
                   }).catch(reason => {
+                    Logger.error('zd ticktet result: ' + JSON.stringify(reason))
                     row.zendeskTicketResult = 'ticket failed'
                     return next(null, row)
                   })
                 }).catch(reason => {
+                  Logger.error('zd parent insert: ' + JSON.stringify(reason))
                   row.zendeskParentInsertResult = 'parent failed'
                   return next(null, row)
                 })
               }).catch(reason => {
+                Logger.error('po result: ' + JSON.stringify(reason))
                 row.preorderResult = reason.toString()
                 return next(null, row)
               })
             }).catch(reason => {
-              Logger.error(reason)
+              Logger.error('Create beneficiary result: ' + JSON.stringify(reason))
               row.beneficiaryResult = reason.toString()
               return next(null, row)
             })
@@ -178,7 +181,7 @@ export default class PreorderAssignmentService {
           email.sendEmail(chapUserEmail, 'Preorder Assignment Result', 'Hi,<br> The preorder assignment result was attached', [attachment])
         })
     } catch (error) {
-      Logger.critical(error)
+      Logger.error('singup error: ' + JSON.stringify(error))
     }
   }
 }

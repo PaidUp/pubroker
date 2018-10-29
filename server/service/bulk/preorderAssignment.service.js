@@ -19,8 +19,11 @@ function replaceText (values, text) {
 export default class PreorderAssignmentService {
   static async bulk (fileName, stream, subject, comment, user) {
     let mapOrganizations = await OrganizationService.mapNameOrganizations()
+    Logger.info('mapOrganizations: ' + Object.keys(mapOrganizations).length)
     let mapPlans = await OrganizationService.mapPlans()
+    Logger.info('mapPlans: ' + Object.keys(mapPlans).length)
     let mapProducts = await OrganizationService.mapProducts()
+    Logger.info('mapProducts: ' + Object.keys(mapProducts).length)
     const chapUserEmail = user.email
     let result = []
     try {

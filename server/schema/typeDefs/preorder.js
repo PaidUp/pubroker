@@ -17,6 +17,45 @@ export default `
     status: String
   }
 
+  type FilePreorder {
+    _id: String
+    rows: Int!
+    keyFile: String!
+    fileName: String!
+    user: String!
+    onUpload: Date!
+  }
+
+  type RowPreorder {
+    _id: String
+    status: String
+    row: Int
+    keyFile: String
+    chapUserEmail: String
+    subject: String
+    comment: String
+    beneficiaryFirstName: String
+    beneficiaryLastName: String
+    parentFirstName: String
+    parentLastName: String
+    parentPhoneNumber: String
+    organizationName: String
+    paymentPlanId: String
+    ticketStatus: String
+    ticketAssignee: String
+    ticketPriority: String
+    cfTicketReasonCategory: String
+    isPublic: String
+    ticketTags: [String]
+    parentEmail: String
+    createOn: Date
+    userStatus: String
+    beneficiaryStatus: String
+    preorderStatus: String
+    zdCreateUserStatus: String
+    zdTicketsCreateStatus: String
+  }
+
   type DuesPreorder {
     description: String
     dateCharge: Date

@@ -1,58 +1,15 @@
-// import config from '@/config/environment'
-// import trae from '@/util/trae'
-import { Logger, Email } from 'pu-common'
-// import stream from 'stream'
+import { Logger } from 'pu-common'
 import randomstring from 'randomstring'
 import csv from 'fast-csv'
-import { Parser as Json2csvParser } from 'json2csv'
 import { UserService, OrganizationService, PreorderService } from '@/service'
 import config from '@/config/environment'
 import ZendeskService from '@/util/zendesk'
 import sqs from 'sqs'
-import { MongoClient } from 'mongodb'
+import Mongo from '@/util/mongo'
 
 const queue = sqs(config.sqs.credentials)
-const email = new Email(config.email.options)
 let collection
-MongoClient.connect(config.mongo.url, (err, cli) => {
-  const client = cli
-  if (err) return console.log('err: ', err)
-  collection = client.db(config.mongo.db).collection(config.mongo.prefix + 'preorder_assinment')
-  console.log('connected db')
-  pull()
-})
-
-async function pull () {
-  queue.pull(config.sqs.queueName, config.sqs.workers, function (row, callback) {
-    row.id = randomstring.generate(5) + new Date().getTime()
-    collection.insertOne(row, (err, response) => {
-      if (err) {
-        Logger.error('err')
-        return callback()
-      }
-      const doc = response.ops[0]
-      signup(doc).then(message => message)
-        .then(() => {
-          return createBeneficiary(doc)
-        }).then(beneficiary => {
-          return createPreorder(doc, beneficiary)
-        }).then(po => {
-          return zdUserCreateOrUpdate(doc, po)
-        })
-        .then(po => {
-          return zdTicketsCreate(doc, po)
-        })
-        .then(message => {
-          callback()
-        })
-        .catch(reason => {
-          Logger.error('preorder assignment error pull row: ' + reason.message)
-          updateRecord(row.id, JSON.parse(reason.message))
-          callback()
-        })
-    })
-  })
-}
+let fileCollection
 
 function updateRecord (id, values, chain) {
   return new Promise((resolve, reject) => {
@@ -84,7 +41,7 @@ function signup (row) {
   }).then(user => {
     const userStatus = user.message ? 'Parent exists.' : 'Parent added.'
     Logger.info(`preorder assignment signup row id: ${row.id}, userStatus ${userStatus}`)
-    return updateRecord(row.id, { userStatus })
+    return updateRecord(row.id, { status: 'processing', userStatus })
   }).catch(reason => {
     throw new Error(JSON.stringify({userStatus: reason.message}))
   })
@@ -92,7 +49,7 @@ function signup (row) {
 
 function createBeneficiary (row, beneficiary) {
   if (!row.organization) {
-    throw new Error({beneficiaryStatus: 'organization does not exist'})
+    throw new Error(JSON.stringify({beneficiaryStatus: 'organization does not exist'}))
   }
   return OrganizationService.createBeneficiary({
     organizationId: row.organization._id,
@@ -109,10 +66,10 @@ function createBeneficiary (row, beneficiary) {
 
 function createPreorder (row, beneficiary) {
   if (!row.plan) {
-    throw new Error({preorderStatus: 'Payment plan does not exist'})
+    throw new Error(JSON.stringify({preorderStatus: 'Payment plan does not exist'}))
   }
   if (!row.product) {
-    throw new Error({preorderStatus: 'Product does not exist'})
+    throw new Error(JSON.stringify({preorderStatus: 'Product does not exist'}))
   }
 
   try {
@@ -178,7 +135,7 @@ function zdTicketsCreate (row, po) {
       isPublic: row.isPublic
     }).then(res => {
       Logger.info(`preorder assignment create zd ticket row id: ${row.id}, preorderStatus: ticket created`)
-      return updateRecord(row.id, {zdTicketsCreateStatus: 'ticket created'})
+      return updateRecord(row.id, {status: 'done', zdTicketsCreateStatus: 'ticket created'})
     }).catch(reason => {
       throw new Error(JSON.stringify({zdTicketsCreateStatus: reason.message}))
     })
@@ -196,35 +153,27 @@ export default class PreorderAssignmentService {
     let mapProducts = await OrganizationService.mapProducts()
     Logger.info('mapProducts: ' + Object.keys(mapProducts).length)
     const chapUserEmail = user.email
-
+    const keyFile = randomstring.generate(12) + new Date().getTime()
+    let rowNum = 0
     try {
       csv
         .fromStream(stream, {headers: true})
         .transform((row, next) => {
-          const rowPush = {
-            chapUserEmail,
-            subject,
-            comment,
-            user,
-            beneficiaryFirstName: row.beneficiaryFirstName,
-            beneficiaryLastName: row.beneficiaryLastName,
-            parentFirstName: row.parentFirstName,
-            parentLastName: row.parentLastName,
-            parentPhoneNumber: row.parentPhoneNumber,
-            organizationName: row.organization,
-            organization: mapOrganizations[row.organization],
-            paymentPlanId: row.paymentPlanId,
-            ticketStatus: row.ticketStatus,
-            ticketAssignee: row.ticketAssignee,
-            ticketPriority: row.ticketPriority,
-            cfTicketReasonCategory: row.cfTicketReasonCategory,
-            isPublic: row.isPublic,
-            ticketTags: row.ticketTags ? row.ticketTags.split('|') : [],
-            parentEmail: row.parentEmail.toLowerCase(),
-            plan: mapPlans[row.paymentPlanId] || null,
-            product: mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
-          }
-          next(null, rowPush)
+          row.status = 'pending'
+          row.row = ++rowNum
+          row.keyFile = keyFile
+          row.chapUserEmail = chapUserEmail
+          row.subject = subject
+          row.comment = comment
+          row.organizationName = row.organization
+          row.organization = mapOrganizations[row.organizationName]
+          row.ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
+          row.parentEmail = row.parentEmail.toLowerCase()
+          row.plan = mapPlans[row.paymentPlanId] || null
+          row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
+          row.createOn = new Date()
+
+          next(null, row)
         })
         .on('data', (data) => {
           try {
@@ -238,180 +187,80 @@ export default class PreorderAssignmentService {
         })
         .on('end', () => {
           Logger.info('End push file: ' + fileName)
-        })
-    } catch (error) {
-      Logger.error('singup error: ' + JSON.stringify(error))
-    }
-  }
-
-  static async bulk (fileName, stream, subject, comment, user) {
-    let mapOrganizations = await OrganizationService.mapNameOrganizations()
-    Logger.info('mapOrganizations: ' + Object.keys(mapOrganizations).length)
-    let mapPlans = await OrganizationService.mapPlans()
-    Logger.info('mapPlans: ' + Object.keys(mapPlans).length)
-    let mapProducts = await OrganizationService.mapProducts()
-    Logger.info('mapProducts: ' + Object.keys(mapProducts).length)
-    const chapUserEmail = user.email
-    let result = []
-    try {
-      csv
-        .fromStream(stream, {headers: true})
-        .transform((row, next) => {
-          const ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
-          const parentEmail = row.parentEmail.toLowerCase()
-          const {
-            beneficiaryFirstName,
-            beneficiaryLastName,
-            parentFirstName,
-            parentLastName,
-            parentPhoneNumber,
-            organization,
-            paymentPlanId,
-            ticketStatus,
-            ticketAssignee,
-            ticketPriority,
-            cfTicketReasonCategory,
-            isPublic
-          } = row
-          // Logger.info('Row: ' + JSON.stringify(row))
-          UserService.signup({firstName: parentFirstName, lastName: parentLastName, email: parentEmail, phone: parentPhoneNumber}).then(user => {
-            if (user.message) {
-              row.parentResult = 'Parent exists.'
-            } else {
-              row.parentResult = 'Parent added.'
-            }
-            const organizationObj = mapOrganizations[organization]
-            if (!organizationObj) {
-              row.beneficiaryResult = 'Invalid organization.'
-              return next(null, row)
-            }
-            OrganizationService.createBeneficiary({organizationId: organizationObj._id,
-              organizationName: organizationObj.businessName,
-              firstName: beneficiaryFirstName,
-              lastName: beneficiaryLastName,
-              assigneesEmail: parentEmail}).then(beneficiaryResult => {
-              Logger.info('beneficiaryResult: ' + JSON.stringify(beneficiaryResult))
-              row.beneficiaryResult = beneficiaryResult.message
-              const plan = mapPlans[paymentPlanId]
-
-              if (!plan) {
-                row.preorderResult = 'Payment plan does not exist'
-                return next(null, row)
-              }
-
-              const cfBalance = plan.dues.reduce((curr, due) => {
-                return curr + due.amount
-              }, 0)
-              const product = mapProducts[plan.productId]
-              if (!product) {
-                row.preorderResul = 'Product does not exist'
-                return next(null, row)
-              }
-
-              const entity = {
-                organizationId: product.organizationId,
-                productId: product._id,
-                productName: product.name,
-                beneficiaryId: beneficiaryResult.beneficiary._id,
-                planId: plan._id,
-                planGroupId: plan.groupId,
-                season: product.season,
-                credits: plan.credits,
-                dues: plan.dues,
-                assigneeEmail: parentEmail,
-                status: 'active'
-              }
-              PreorderService.create(entity).then(po => {
-                row.preorderResult = 'Preorder added'
-                row.preOrderId = po._id
-
-                ZendeskService.userCreateOrUpdate({
-                  email: parentEmail,
-                  name: parentFirstName + ' ' + parentLastName,
-                  phone: parentPhoneNumber,
-                  organization: { name: organization },
-                  beneficiary: beneficiaryFirstName + ' ' + beneficiaryLastName,
-                  product: product.name
-                }).then(res => {
-                  row.zendeskParentInsertResult = 'parent added'
-                  ZendeskService.ticketsCreate({
-                    preorderId: po._id,
-                    subject: replaceText(row, subject),
-                    comment: replaceText(row, comment),
-                    status: ticketStatus,
-                    requesterEmail: parentEmail,
-                    requesterName: parentFirstName + '' + parentLastName,
-                    ticketAssignee,
-                    ticketPriority,
-                    cfBalance,
-                    cfTicketReasonCategory,
-                    ticketTags,
-                    isPublic
-                  }).then(res => {
-                    row.zendeskTicketResult = 'ticket created'
-                    return next(null, row)
-                  }).catch(reason => {
-                    Logger.error('zd ticktet result: ' + JSON.stringify(reason))
-                    row.zendeskTicketResult = 'ticket failed'
-                    return next(null, row)
-                  })
-                }).catch(reason => {
-                  Logger.error('zd parent insert: ' + JSON.stringify(reason))
-                  row.zendeskParentInsertResult = 'parent failed'
-                  return next(null, row)
-                })
-              }).catch(reason => {
-                Logger.error('po result: ' + JSON.stringify(reason))
-                row.preorderResult = reason.toString()
-                return next(null, row)
-              })
-            }).catch(reason => {
-              Logger.error('Create beneficiary result: ' + JSON.stringify(reason))
-              row.beneficiaryResult = reason.toString()
-              return next(null, row)
-            })
-          }).catch(reason => {
-            row.parentResult = reason.toString()
-            return next(null, row)
+          fileCollection.insertOne({
+            rows: rowNum,
+            keyFile,
+            fileName,
+            user: chapUserEmail,
+            onUpload: new Date()
+          }, (err, response) => {
+            if (err) Logger.critical(err.message)
           })
         })
-        .on('data', (data) => {
-          result.push(data)
-        })
-        .on('end', () => {
-          const fields = [
-            'beneficiaryFirstName',
-            'beneficiaryLastName',
-            'parentEmail',
-            'parentFirstName',
-            'parentLastName',
-            'parentPhoneNumber',
-            'organization',
-            'paymentPlanId',
-            'ticketStatus',
-            'ticketTags',
-            'ticketAssignee',
-            'ticketPriority',
-            'cfTicketReasonCategory',
-            'isPublic',
-            'preOrderId',
-            'parentResult',
-            'beneficiaryResult',
-            'preorderResult',
-            'zendeskParentInsertResult',
-            'zendeskTicketResult'
-          ]
-          const json2csvParser = new Json2csvParser({ fields })
-          const csv = json2csvParser.parse(result)
-          const attachment = {
-            content: Buffer.from(csv).toString('base64'),
-            fileName: 'Result - ' + fileName,
-            type: 'application/octet-stream'
-          }
-          email.sendEmail(chapUserEmail, 'Preorder Assignment Result', 'Hi,<br> The preorder assignment result was attached', [attachment])
-        })
     } catch (error) {
       Logger.error('singup error: ' + JSON.stringify(error))
     }
   }
+
+  static getRowsByFile (keyFile) {
+    return new Promise((resolve, reject) => {
+      collection.find({ keyFile }).sort({ row: 1 }).toArray((err, rows) => {
+        if (err) reject(err)
+        resolve(rows)
+      })
+    })
+  }
+
+  static getFilesByUser (user) {
+    return new Promise((resolve, reject) => {
+      fileCollection.find({ user }).sort({ onUpload: -1 }).toArray((err, rows) => {
+        if (err) reject(err)
+        resolve(rows)
+      })
+    })
+  }
+}
+
+export const pull = function () {
+  Logger.info('preorder assignment pull invoked')
+  collection = Mongo.getCollection('preorder_assinment_row')
+  fileCollection = Mongo.getCollection('preorder_assinment_file')
+  queue.pull(config.sqs.queueName, config.sqs.workers, function (row, callback) {
+    row.id = randomstring.generate(5) + new Date().getTime()
+    collection.insertOne(row, (err, response) => {
+      if (err) {
+        Logger.error('err')
+        return callback()
+      }
+      const doc = response.ops[0]
+      signup(doc).then(message => message)
+        .then(() => {
+          return createBeneficiary(doc)
+        }).then(beneficiary => {
+          return createPreorder(doc, beneficiary)
+        }).then(po => {
+          return zdUserCreateOrUpdate(doc, po)
+        })
+        .then(po => {
+          return zdTicketsCreate(doc, po)
+        })
+        .then(message => {
+          callback()
+        })
+        .catch(reason => {
+          Logger.error('preorder assignment error pull row: ' + reason.message)
+          let message
+          try {
+            message = JSON.parse(reason.message)
+            message.status = 'faild'
+          } catch (error) {
+            message = {status: 'faild', error: reason.message}
+          }
+          updateRecord(row.id, message).catch(reason => {
+            Logger.critical(reason.message)
+          })
+          callback()
+        })
+    })
+  })
 }

@@ -13,4 +13,12 @@ export default `
     assigneesEmail: [String]
     status: String
   }
+
+  type BeneficiaryParentInfo {
+    beneficiaryFirstName: String
+    beneficiaryLastName: String
+    parentFirstName: String
+    parentLastName: String
+    parentEmail: String
+  }
 `

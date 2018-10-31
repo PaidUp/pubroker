@@ -14,4 +14,10 @@ export default class UserService {
       .then(userResponse => userResponse)
       .catch(errors => errors)
   }
+
+  static getIntoEmails (emails) {
+    return trae(`${config.api.user}/emails`, 'POST', { emails })
+      .then(users => users)
+      .catch(errors => errors)
+  }
 }

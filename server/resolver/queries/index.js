@@ -1,5 +1,6 @@
 import { invoices, payments } from './commerce.query'
 import { search } from './search.query'
+import { getUsersByEmails } from './user.query'
 import { preorderAssignmentFiles, preorderAssignmentRows } from './preorder.query'
 
 export default {
@@ -7,5 +8,6 @@ export default {
   payments,
   search,
   preorderAssignmentFiles,
-  preorderAssignmentRows
+  preorderAssignmentRows,
+  getUsersByEmails
 }

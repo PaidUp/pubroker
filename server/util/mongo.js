@@ -8,7 +8,7 @@ let prefix
 export default class Mongo {
   static connect (conf) {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(conf.url, (err, cli) => {
+      MongoClient.connect(conf.url, {useNewUrlParser: true}, (err, cli) => {
         Mongo.client = cli
         db = conf.db
         prefix = conf.prefix

@@ -33,24 +33,29 @@ function replaceText (values, text) {
 }
 
 function signup (row) {
-  return UserService.signup({
-    firstName: row.parentFirstName,
-    lastName: row.parentLastName,
-    email: row.parentEmail,
-    phone: row.parentPhoneNumber
-  }).then(user => {
-    const userStatus = user.message ? 'Parent exists.' : 'Parent added.'
-    Logger.info(`preorder assignment signup row id: ${row.id}, userStatus ${userStatus}`)
-    return updateRecord(row.id, { status: 'processing', userStatus })
-  }).catch(reason => {
-    throw new Error(JSON.stringify({userStatus: reason.message}))
+  return new Promise((resolve, reject) => {
+    if (!row.parentFirstName.trim().length) return reject(new Error(JSON.stringify({userStatus: 'parentFirstName is required'})))
+    if (!row.parentLastName.trim().length) return reject(new Error(JSON.stringify({userStatus: 'parentLastName is required'})))
+    if (!row.parentEmail) return reject(new Error(JSON.stringify({userStatus: 'parentEmail is required'})))
+    UserService.signup({
+      firstName: row.parentFirstName,
+      lastName: row.parentLastName,
+      email: row.parentEmail,
+      phone: row.parentPhoneNumber
+    }).then(user => {
+      const userStatus = user.message ? 'Parent exists.' : 'Parent added.'
+      Logger.info(`preorder assignment signup row id: ${row.id}, userStatus ${userStatus}`)
+      resolve(updateRecord(row.id, { status: 'processing', userStatus }))
+    }).catch(reason => {
+      throw new Error(JSON.stringify({userStatus: reason.message}))
+    })
   })
 }
 
-function createBeneficiary (row, beneficiary) {
-  if (!row.organization) {
-    throw new Error(JSON.stringify({beneficiaryStatus: 'organization does not exist'}))
-  }
+function createBeneficiary (row) {
+  if (!row.organization) throw new Error(JSON.stringify({beneficiaryStatus: 'organization does not exist'}))
+  if (!row.beneficiaryFirstName.trim().length) throw new Error(JSON.stringify({beneficiaryStatus: 'beneficiaryFirstName is required'}))
+  if (!row.beneficiaryLastName.trim().length) throw new Error(JSON.stringify({beneficiaryStatus: 'beneficiaryLastName is required'}))
   return OrganizationService.createBeneficiary({
     organizationId: row.organization._id,
     organizationName: row.organization.businessName,
@@ -65,12 +70,8 @@ function createBeneficiary (row, beneficiary) {
 }
 
 function createPreorder (row, beneficiary) {
-  if (!row.plan) {
-    throw new Error(JSON.stringify({preorderStatus: 'Payment plan does not exist'}))
-  }
-  if (!row.product) {
-    throw new Error(JSON.stringify({preorderStatus: 'Product does not exist'}))
-  }
+  if (!row.plan) throw new Error(JSON.stringify({preorderStatus: 'Payment plan does not exist'}))
+  if (!row.product) throw new Error(JSON.stringify({preorderStatus: 'Product does not exist'}))
 
   try {
     const entity = {
@@ -252,9 +253,9 @@ export const pull = function () {
           let message
           try {
             message = JSON.parse(reason.message)
-            message.status = 'faild'
+            message.status = 'failed'
           } catch (error) {
-            message = {status: 'faild', error: reason.message}
+            message = {status: 'failed', error: reason.message}
           }
           updateRecord(row.id, message).catch(reason => {
             Logger.critical(reason.message)

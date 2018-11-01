@@ -100,7 +100,7 @@ function createPreorder (row, beneficiary) {
   }
 }
 
-function zdUserCreateOrUpdate (row, po) {
+function zdUserCreateOrUpdate (row, beneficiary) {
   return ZendeskService.userCreateOrUpdate({
     email: row.parentEmail,
     name: row.parentFirstName + ' ' + row.parentLastName,
@@ -110,7 +110,7 @@ function zdUserCreateOrUpdate (row, po) {
     product: row.product.name
   }).then(res => {
     Logger.info(`preorder assignment create zd user row id: ${row.id}, preorderStatus: parent added`)
-    return updateRecord(row.id, {zdCreateUserStatus: 'parent added'}, po)
+    return updateRecord(row.id, {zdCreateUserStatus: 'parent added'}, beneficiary)
   }).catch(reason => {
     throw new Error(JSON.stringify({zdCreateUserStatus: reason.message}))
   })
@@ -238,9 +238,9 @@ export const pull = function () {
         .then(() => {
           return createBeneficiary(doc)
         }).then(beneficiary => {
+          return zdUserCreateOrUpdate(doc, beneficiary)
+        }).then(beneficiary => {
           return createPreorder(doc, beneficiary)
-        }).then(po => {
-          return zdUserCreateOrUpdate(doc, po)
         })
         .then(po => {
           return zdTicketsCreate(doc, po)

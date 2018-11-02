@@ -6,6 +6,7 @@ import config from '@/config/environment'
 import ZendeskService from '@/util/zendesk'
 import sqs from 'sqs'
 import Mongo from '@/util/mongo'
+import validator from 'email-validator'
 
 const queue = sqs(config.sqs.credentials)
 let collection
@@ -35,8 +36,9 @@ function replaceText (values, text) {
 function signup (row) {
   return new Promise((resolve, reject) => {
     if (!row.parentFirstName.trim().length) return reject(new Error(JSON.stringify({userStatus: 'parentFirstName is required'})))
+    if (!row.parentFirstName.trim().length) return reject(new Error(JSON.stringify({userStatus: 'parentFirstName is required'})))
     if (!row.parentLastName.trim().length) return reject(new Error(JSON.stringify({userStatus: 'parentLastName is required'})))
-    if (!row.parentEmail) return reject(new Error(JSON.stringify({userStatus: 'parentEmail is required'})))
+    if (!validator.validate(row.parentEmail)) return reject(new Error(JSON.stringify({userStatus: 'parentEmail is invalid'})))
     UserService.signup({
       firstName: row.parentFirstName,
       lastName: row.parentLastName,
@@ -160,31 +162,32 @@ export default class PreorderAssignmentService {
       csv
         .fromStream(stream, {headers: true})
         .transform((row, next) => {
+          row.id = randomstring.generate(5) + new Date().getTime()
           row.status = 'pending'
           row.row = ++rowNum
           row.keyFile = keyFile
           row.chapUserEmail = chapUserEmail
           row.subject = subject
           row.comment = comment
-          row.organizationName = row.organization
           row.organization = mapOrganizations[row.organizationName]
           row.ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
           row.parentEmail = row.parentEmail.toLowerCase()
           row.plan = mapPlans[row.paymentPlanId] || null
           row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
           row.createOn = new Date()
-
-          next(null, row)
-        })
-        .on('data', (data) => {
           try {
-            queue.push(config.sqs.queueName, data, (err1, msg) => {
-              if (err1) return Logger.error('PreorderAssignmentService push error: ' + err1)
+            queue.push(config.sqs.queueName, row, (err1, msg) => {
+              if (err1) Logger.error('PreorderAssignmentService push error1: ' + err1)
+              next(null, row)
               // Logger.info('PreorderAssignmentService push result: ' + JSON.stringify(data))
             })
           } catch (reason) {
+            next(null, row)
             // Logger.error('PreorderAssignmentService catch push: ' + reason)
           }
+        })
+        .on('data', (data) => {
+
         })
         .on('end', () => {
           Logger.info('End push file: ' + fileName)
@@ -226,14 +229,9 @@ export const pull = function () {
   Logger.info('preorder assignment pull invoked')
   collection = Mongo.getCollection('preorder_assinment_row')
   fileCollection = Mongo.getCollection('preorder_assinment_file')
-  queue.pull(config.sqs.queueName, config.sqs.workers, function (row, callback) {
-    row.id = randomstring.generate(5) + new Date().getTime()
-    collection.insertOne(row, (err, response) => {
-      if (err) {
-        Logger.error('err')
-        return callback()
-      }
-      const doc = response.ops[0]
+  queue.pull(config.sqs.queueName, config.sqs.workers, function (doc, callback) {
+    collection.insertOne(doc, (err, response) => {
+      if (err) return Logger.critical(err.message)
       signup(doc).then(message => message)
         .then(() => {
           return createBeneficiary(doc)
@@ -257,7 +255,7 @@ export const pull = function () {
           } catch (error) {
             message = {status: 'failed', error: reason.message}
           }
-          updateRecord(row.id, message).catch(reason => {
+          updateRecord(doc.id, message).catch(reason => {
             Logger.critical(reason.message)
           })
           callback()

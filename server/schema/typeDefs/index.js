@@ -9,11 +9,12 @@ import User from './user'
 import Transfer from './transfer'
 import SourceTransaction from './sourceTransaction'
 import SourceTransactionMetadata from './sourceTransactionMetadata'
-import SourceTransactionSource from './sourceTransactionSource'
+import Source from './source'
 import BalanceTransaction from './balanceTransaction'
 import DestinationPayment from './destinationPayment'
+import Payout from './payout'
 
-export {
+export default [
   FileType,
   Beneficiary,
   Credit,
@@ -25,7 +26,8 @@ export {
   Transfer,
   SourceTransaction,
   SourceTransactionMetadata,
-  SourceTransactionSource,
+  Source,
   BalanceTransaction,
-  DestinationPayment
-}
+  DestinationPayment,
+  Payout
+]

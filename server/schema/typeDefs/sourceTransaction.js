@@ -12,7 +12,7 @@ export default `
     metadata: SourceTransactionMetadata!
     on_behalf_of: String!
     paid: Boolean!
-    source: SourceTransactionSource!
+    source: Source!
     statement_descriptor: String
     status: String
   }

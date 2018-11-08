@@ -9,5 +9,6 @@ export default `
     fee: Int!
     net: Int!
     status: String!
+    type: String!
   }
 `

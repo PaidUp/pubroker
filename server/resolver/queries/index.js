@@ -2,7 +2,7 @@ import { invoices, payments } from './commerce.query'
 import { search } from './search.query'
 import { getUsersByEmails } from './user.query'
 import { preorderAssignmentFiles, preorderAssignmentRows } from './preorder.query'
-import { fetchTransfers, fetchPayments } from './deposit.query'
+import { fetchTransfers, fetchPayouts } from './deposit.query'
 
 export default {
   invoices,
@@ -12,5 +12,5 @@ export default {
   preorderAssignmentRows,
   getUsersByEmails,
   fetchTransfers,
-  fetchPayments
+  fetchPayouts
 }

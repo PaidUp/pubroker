@@ -1,4 +1,9 @@
-import { FileType, Beneficiary, Invoice, User, SearchResult, Preorder, Credit, Payment } from './typeDefs'
+import { FileType, Beneficiary, Invoice, User, SearchResult, Preorder, Credit, Payment, Transfer,
+  SourceTransaction,
+  SourceTransactionMetadata,
+  SourceTransactionSource,
+  BalanceTransaction,
+  DestinationPayment } from './typeDefs'
 import { makeExecutableSchema } from 'apollo-server-express'
 import mutation from './mutation'
 import query from './query'
@@ -18,7 +23,12 @@ const rootQuery = `
 `
 
 const schema = makeExecutableSchema({
-  typeDefs: [rootQuery, Invoice, Payment, Beneficiary, User, SearchResult, Preorder, Credit, FileType],
+  typeDefs: [rootQuery, Invoice, Payment, Beneficiary, User, SearchResult, Preorder, Credit, FileType, Transfer, Transfer,
+    SourceTransaction,
+    SourceTransactionMetadata,
+    SourceTransactionSource,
+    BalanceTransaction,
+    DestinationPayment],
   resolvers
 })
 

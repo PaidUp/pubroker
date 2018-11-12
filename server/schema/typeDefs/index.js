@@ -13,6 +13,7 @@ import Source from './source'
 import BalanceTransaction from './balanceTransaction'
 import DestinationPayment from './destinationPayment'
 import Payout from './payout'
+import ApplicationFee from './applicationFee'
 
 export default [
   FileType,
@@ -29,5 +30,6 @@ export default [
   Source,
   BalanceTransaction,
   DestinationPayment,
-  Payout
+  Payout,
+  ApplicationFee
 ]

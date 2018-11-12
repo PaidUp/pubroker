@@ -15,5 +15,6 @@ export default `
     source: Source!
     statement_descriptor: String
     status: String
+    application_fee: ApplicationFee
   }
 `

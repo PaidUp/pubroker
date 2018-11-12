@@ -4,7 +4,7 @@ export default `
     id: String!
     amount: Int!
     amount_reversed: Int!
-    balance_transaction: BalanceTransaction!
+    balance_transaction: String!
     created: Int!
     currency: String!
     destination: String!

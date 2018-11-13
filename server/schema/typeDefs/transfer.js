@@ -13,5 +13,6 @@ export default `
     reversed: Boolean!
     source_transaction: SourceTransaction
     source_type: String!
+    invoice: Invoice
   }
 `

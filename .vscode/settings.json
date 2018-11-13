@@ -1,0 +1,60 @@
+// Place your settings in this file to overwrite the default settings
+{
+  "prettier.eslintIntegration": true,
+  "vetur.format.defaultFormatter.js": "prettier",
+    // Defines space handling after a comma delimiter.
+"javascript.format.insertSpaceAfterCommaDelimiter": true,
+
+// Defines space handling after the constructor keyword. Requires TypeScript >= 2.3.0.
+"javascript.format.insertSpaceAfterConstructor": true,
+
+// Defines space handling after function keyword for anonymous functions.
+"javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
+
+// Defines space handling after keywords in a control flow statement.
+"javascript.format.insertSpaceAfterKeywordsInControlFlowStatements": true,
+
+// Defines space handling after opening and before closing JSX expression braces. Requires TypeScript >= 2.0.6.
+"javascript.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": true,
+
+// Defines space handling after opening and before closing non empty braces. Requires TypeScript >= 2.3.0.
+"javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true,
+
+// Defines space handling after opening and before closing non empty brackets.
+"javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
+
+// Defines space handling after opening and before closing non empty parenthesis.
+"javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": true,
+
+// Defines space handling after opening and before closing template string braces. Requires TypeScript >= 2.0.6.
+"javascript.format.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": true,
+
+//  Defines space handling after a semicolon in a for statement.
+"javascript.format.insertSpaceAfterSemicolonInForStatements": true,
+ 
+  "eslint.autoFixOnSave": true,
+  "eslint.run": "onType",
+  "eslint.options": {
+      "extensions": [
+    ".html",
+    ".js",
+    ".vue",
+    ".jsx"
+  ]
+  },
+  
+  "javascript.format.enable": false,
+  "eslint.validate": [
+      "javascript",
+      {
+          "language": "vue",
+          "autoFix": false
+      },
+      "javascriptreact"
+  ],
+  "editor.tabSize": 2,
+  "terminal.integrated.shell.linux": "/bin/zsh",
+  "terminal.integrated.shell.osx": "/bin/zsh",
+  "terminal.integrated.fontFamily": "ShureTechMono Nerd Font Mono",
+  "terminal.integrated.fontSize": 13
+}

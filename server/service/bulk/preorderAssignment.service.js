@@ -134,7 +134,7 @@ function zdTicketsCreate (row, po) {
       ticketPriority: row.ticketPriority,
       cfBalance,
       cfTicketReasonCategory: row.cfTicketReasonCategory,
-      cfPaymentLink: row.emailEncode,
+      cfPaymentLink: row.cfPaymentLink,
       ticketTags: row.ticketTags,
       isPublic: row.isPublic
     }).then(res => {

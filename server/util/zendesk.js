@@ -9,6 +9,7 @@ const client = zendesk.createClient({
 const cfTicketReasonCategoryId = config.zendesk.customFields.ticketReasonCategory
 const cfBalanceId = config.zendesk.customFields.balance
 const cfPreoderId = config.zendesk.customFields.preorderId
+const cfPaymentLinkId = config.zendesk.customFields.paymentLink
 
 export default class Zendesk {
   static userCreateOrUpdate ({email, name, phone, organization, beneficiary, product}) {
@@ -35,11 +36,14 @@ export default class Zendesk {
     })
   }
 
-  static ticketsCreate ({preorderId, subject, comment, status, requesterEmail, requesterName, ticketAssignee, ticketPriority, cfBalance, cfTicketReasonCategory, ticketTags, isPublic}) {
+  static ticketsCreate ({preorderId, subject, comment, status, requesterEmail, requesterName, ticketAssignee, ticketPriority, cfBalance, cfPaymentLink, cfTicketReasonCategory, ticketTags, isPublic}) {
     return new Promise((resolve, reject) => {
       let customFields = [{id: cfPreoderId, value: preorderId}]
       if (cfBalance) {
         customFields.push({id: cfBalanceId, value: cfBalance})
+      }
+      if (cfPaymentLink) {
+        customFields.push({id: cfPaymentLinkId, value: cfPaymentLink})
       }
       if (cfTicketReasonCategory) {
         customFields.push({id: cfTicketReasonCategoryId, value: cfTicketReasonCategory})

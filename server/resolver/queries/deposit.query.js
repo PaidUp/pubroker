@@ -5,6 +5,6 @@ export const fetchBalanceHistory = validate([Roles.COACH, Roles.API])(async (_, 
   return DepositsService.fetchBalanceHistory(account, payout)
 })
 
-export const fetchPayouts = validate([Roles.COACH, Roles.API])(async (_, { account, limit, startingAfter }) => {
-  return DepositsService.fetchPayouts({ account, limit, startingAfter })
+export const fetchPayouts = validate([Roles.COACH, Roles.API])(async (_, { account, limit, startingAfter, endingBefore }) => {
+  return DepositsService.fetchPayouts({ account, limit, startingAfter, endingBefore })
 })

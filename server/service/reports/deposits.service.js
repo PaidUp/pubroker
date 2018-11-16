@@ -19,9 +19,10 @@ export default class DepositsService {
     })
   }
 
-  static fetchPayouts ({account, limit = 10, startingAfter} = {}) {
+  static fetchPayouts ({account, limit = 10, startingAfter, endingBefore} = {}) {
     let url = `${config.api.payment}/deposit/payout/${encodeURI(account)}?limit=${limit}`
     if (startingAfter) url = `${url}&startingAfter=${encodeURI(startingAfter)}`
+    if (endingBefore) url = `${url}&endingBefore=${encodeURI(endingBefore)}`
     return trae(url, 'GET')
   }
 }

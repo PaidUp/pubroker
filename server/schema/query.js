@@ -7,6 +7,6 @@ type Query {
   preorderAssignmentFiles(email: String): [FilePreorder]
   preorderAssignmentRows(keyFile: String): [RowPreorder]
   fetchBalanceHistory(account: String!, payout: String!,): [BalanceTransaction]!
-  fetchPayouts(account: String!, limit: Int, startingAfter: String): PayoutResponse!
+  fetchPayouts(account: String!, limit: Int, startingAfter: String, endingBefore: String): PayoutResponse!
 }
 `

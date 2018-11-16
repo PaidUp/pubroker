@@ -1,10 +1,9 @@
 export default `
   type Payout {
-    _id: String!
     id: String!
     amount: Int!
     arrival_date: Int!
-    balance_transaction: BalanceTransaction
+    balance_transaction: String
     created: Int!
     currency: String!
     description: String!

@@ -1,10 +1,10 @@
 import { Roles, validate } from '@/util/requireRole'
 import { DepositsService } from '@/service'
 
-export const fetchTransfers = validate([Roles.COACH, Roles.API])(async (_, { account, arrival, source }) => {
-  return DepositsService.fetchTransfers(account, arrival, source)
+export const fetchBalanceHistory = validate([Roles.COACH, Roles.API])(async (_, { account, payout }) => {
+  return DepositsService.fetchBalanceHistory(account, payout)
 })
 
-export const fetchPayouts = validate([Roles.COACH, Roles.API])(async (_, { account }) => {
-  return DepositsService.fetchPayouts(account)
+export const fetchPayouts = validate([Roles.COACH, Roles.API])(async (_, { account, limit, startingAfter }) => {
+  return DepositsService.fetchPayouts({ account, limit, startingAfter })
 })

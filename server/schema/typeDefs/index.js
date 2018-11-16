@@ -6,14 +6,15 @@ import Payment from './payment'
 import Preorder from './preorder'
 import SearchResult from './searchResult'
 import User from './user'
-import Transfer from './transfer'
 import SourceTransaction from './sourceTransaction'
 import SourceTransactionMetadata from './sourceTransactionMetadata'
 import Source from './source'
 import BalanceTransaction from './balanceTransaction'
-import DestinationPayment from './destinationPayment'
 import Payout from './payout'
+import PayoutResponse from './payoutResponse'
 import ApplicationFee from './applicationFee'
+import SourcePayout from './sourcePayout'
+import SourceTransfer from './sourceTransfer'
 
 export default [
   FileType,
@@ -24,12 +25,13 @@ export default [
   Preorder,
   SearchResult,
   User,
-  Transfer,
   SourceTransaction,
   SourceTransactionMetadata,
   Source,
   BalanceTransaction,
-  DestinationPayment,
   Payout,
-  ApplicationFee
+  PayoutResponse,
+  ApplicationFee,
+  SourcePayout,
+  SourceTransfer
 ]

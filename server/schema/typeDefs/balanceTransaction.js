@@ -10,5 +10,7 @@ export default `
     net: Int!
     status: String!
     type: String!
+    source: SourcePayout
+    invoice: Invoice
   }
 `

@@ -2,19 +2,13 @@ import { Logger } from 'pu-common'
 import randomstring from 'randomstring'
 import csv from 'fast-csv'
 import { UserService, OrganizationService, PreorderService } from '@/service'
-import config from '@/config/environment'
 import ZendeskService from '@/util/zendesk'
-import sqs from 'sqs'
 import Mongo from '@/util/mongo'
 import validator from 'email-validator'
 
-const queue = sqs(config.sqs.credentials)
-let collection
-let fileCollection
-
 function updateRecord (id, values, chain) {
   return new Promise((resolve, reject) => {
-    collection.findOneAndUpdate({ id }, { $set: values, $inc: {__v: 1} }, (err, result) => {
+    Mongo.preoderAssignmentRowCollection.findOneAndUpdate({ id }, { $set: values, $inc: {__v: 1} }, (err, result) => {
       if (err) {
         Logger.error('preorder assignment error update row: ' + JSON.stringify(err))
         return reject(err)
@@ -103,6 +97,7 @@ function createPreorder (row, beneficiary) {
 }
 
 function zdUserCreateOrUpdate (row, beneficiary) {
+  if (!row.product) throw new Error(JSON.stringify({preorderStatus: 'Product does not exist'}))
   return ZendeskService.userCreateOrUpdate({
     email: row.parentEmail,
     name: row.parentFirstName + ' ' + row.parentLastName,
@@ -148,24 +143,25 @@ function zdTicketsCreate (row, po) {
   }
 }
 
-export default class PreorderAssignmentService {
-  static async push (fileName, stream, subject, comment, user) {
-    let mapOrganizations = await OrganizationService.mapNameOrganizations()
-    Logger.info('mapOrganizations: ' + Object.keys(mapOrganizations).length)
-    let mapPlans = await OrganizationService.mapPlans()
-    Logger.info('mapPlans: ' + Object.keys(mapPlans).length)
-    let mapProducts = await OrganizationService.mapProducts()
-    Logger.info('mapProducts: ' + Object.keys(mapProducts).length)
-    const chapUserEmail = user.email
-    const keyFile = randomstring.generate(12) + new Date().getTime()
-    let rowNum = 0
-    let rowsFailed = 0
-    let rows = []
+async function readFile (fileName, stream, subject, comment, user) {
+  let mapOrganizations = await OrganizationService.mapNameOrganizations()
+  Logger.info('mapOrganizations: ' + Object.keys(mapOrganizations).length)
+  let mapPlans = await OrganizationService.mapPlans()
+  Logger.info('mapPlans: ' + Object.keys(mapPlans).length)
+  let mapProducts = await OrganizationService.mapProducts()
+  Logger.info('mapProducts: ' + Object.keys(mapProducts).length)
+  const chapUserEmail = user.email
+  const keyFile = randomstring.generate(12) + new Date().getTime()
+  let rowNum = 0
+  let rowsFailed = 0
+  let rows = []
+  return new Promise((resolve, reject) => {
     try {
       csv
         .fromStream(stream, {headers: true})
         .transform((row, next) => {
           try {
+            row.createOn = new Date()
             row.id = randomstring.generate(5) + new Date().getTime()
             row.status = 'pending'
             row.row = ++rowNum
@@ -178,30 +174,29 @@ export default class PreorderAssignmentService {
             row.parentEmail = row.parentEmail.toLowerCase()
             row.plan = mapPlans[row.paymentPlanId] || null
             row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
-            row.createOn = new Date()
-            next(null, row)
           } catch (reason) {
-            next(null, row)
+            rowsFailed++
+            row.status = 'failed'
+            row.reason = reason.message
             Logger.error('Row failed: ' + JSON.stringify(row))
             Logger.error('PreorderAssignmentService catch push: ' + reason.message)
+          } finally {
+            Mongo.preoderAssignmentRowCollection.insertOne(row, (err, response) => {
+              if (err) {
+                Logger.error('Row failed insert: ' + err.reason)
+              } else {
+                rows.push(row)
+              }
+              next(null, row)
+            })
           }
         })
         .on('data', (data) => {
-          rows.push(data)
+
         })
         .on('end', () => {
           Logger.info('End push file: ' + fileName)
-          rows.forEach(row => {
-            queue.push(config.sqs.queueName, row, (err1, msg) => {
-              if (err1) {
-                rowsFailed++
-                Logger.error('PreorderAssignmentService push error1: ' + err1)
-              } else {
-                Logger.info('PreorderAssignmentService push result: ' + JSON.stringify(row))
-              }
-            })
-          })
-          fileCollection.insertOne({
+          Mongo.preoderAssignmentFileCollection.insertOne({
             rows: rowNum,
             rowsFailed,
             keyFile,
@@ -209,17 +204,33 @@ export default class PreorderAssignmentService {
             user: chapUserEmail,
             onUpload: new Date()
           }, (err, response) => {
-            if (err) Logger.critical(err.message)
+            if (err) {
+              Logger.critical(err.message)
+              reject(err)
+            } else {
+              Logger.info('Save push file: ' + fileName)
+              resolve(rows)
+            }
           })
         })
     } catch (error) {
       Logger.error('singup error: ' + JSON.stringify(error))
+      reject(error)
     }
+  })
+}
+
+export default class PreorderAssignmentService {
+  static async push (fileName, stream, subject, comment, user) {
+    const rows = await readFile(fileName, stream, subject, comment, user)
+    Logger.info('Start bulk: ' + fileName)
+    await executeBulk(rows)
+    Logger.info('End bulk: ' + fileName)
   }
 
   static getRowsByFile (keyFile) {
     return new Promise((resolve, reject) => {
-      collection.find({ keyFile }).sort({ row: 1 }).toArray((err, rows) => {
+      Mongo.preoderAssignmentRowCollection.find({ keyFile }).sort({ row: 1 }).toArray((err, rows) => {
         if (err) reject(err)
         resolve(rows)
       })
@@ -228,7 +239,7 @@ export default class PreorderAssignmentService {
 
   static getFilesByUser (user) {
     return new Promise((resolve, reject) => {
-      fileCollection.find({ user }).sort({ onUpload: -1 }).toArray((err, rows) => {
+      Mongo.preoderAssignmentFileCollection.find({ user }).sort({ onUpload: -1 }).toArray((err, rows) => {
         if (err) reject(err)
         resolve(rows)
       })
@@ -236,41 +247,36 @@ export default class PreorderAssignmentService {
   }
 }
 
-export const pull = function () {
-  Logger.info('preorder assignment pull invoked')
-  collection = Mongo.getCollection('preorder_assinment_row')
-  fileCollection = Mongo.getCollection('preorder_assinment_file')
-  queue.pull(config.sqs.queueName, config.sqs.workers, function (doc, callback) {
-    collection.insertOne(doc, (err, response) => {
-      if (err) return Logger.critical(err.message)
-      signup(doc).then(message => message)
-        .then(() => {
-          return createBeneficiary(doc)
-        }).then(beneficiary => {
-          return zdUserCreateOrUpdate(doc, beneficiary)
-        }).then(beneficiary => {
-          return createPreorder(doc, beneficiary)
+async function executeBulk (rows) {
+  for (let index = 0; index < rows.length; index++) {
+    const doc = rows[index]
+    await signup(doc).then(message => message)
+      .then(() => {
+        return createBeneficiary(doc)
+      }).then(beneficiary => {
+        return zdUserCreateOrUpdate(doc, beneficiary)
+      }).then(beneficiary => {
+        return createPreorder(doc, beneficiary)
+      })
+      .then(po => {
+        return zdTicketsCreate(doc, po)
+      })
+      .then(message => {
+        Logger.info('finish row: ' + doc.row)
+      })
+      .catch(reason => {
+        Logger.error('preorder assignment error pull row: ' + reason.message)
+        let message
+        try {
+          message = JSON.parse(reason.message)
+          message.status = 'failed'
+        } catch (error) {
+          message = {status: 'failed', error: reason.message}
+        }
+        updateRecord(doc.id, message).catch(reason => {
+          Logger.critical('Failed row: ' + doc.row)
+          Logger.critical(reason.message)
         })
-        .then(po => {
-          return zdTicketsCreate(doc, po)
-        })
-        .then(message => {
-          callback()
-        })
-        .catch(reason => {
-          Logger.error('preorder assignment error pull row: ' + reason.message)
-          let message
-          try {
-            message = JSON.parse(reason.message)
-            message.status = 'failed'
-          } catch (error) {
-            message = {status: 'failed', error: reason.message}
-          }
-          updateRecord(doc.id, message).catch(reason => {
-            Logger.critical(reason.message)
-          })
-          callback()
-        })
-    })
-  })
+      })
+  }
 }

@@ -5,7 +5,6 @@ import configExpress from './config/express'
 import routes from './routes'
 import { auth, Logger } from 'pu-common'
 import Mongo from '@/util/mongo'
-import { pull } from '@/service/bulk/preorderAssignment.service'
 
 auth.config = config.auth
 Logger.setConfig(config.logger)
@@ -32,7 +31,6 @@ routes(app)
 Mongo.connect(config.mongo).then(cli => {
   app.listen(config.port, config.ip, function () {
     Logger.info(`pu-broker listening on ${config.port}, in ${app.get('env')} mode`)
-    pull()
   })
 }).catch(reason => {
   Logger.critical(reason.message)

@@ -20,6 +20,7 @@ export default `
   type FilePreorder {
     _id: String
     rows: Int!
+    rowsFailed: Int
     keyFile: String!
     fileName: String!
     user: String!

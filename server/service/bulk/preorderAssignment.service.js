@@ -159,41 +159,51 @@ export default class PreorderAssignmentService {
     const chapUserEmail = user.email
     const keyFile = randomstring.generate(12) + new Date().getTime()
     let rowNum = 0
+    let rowsFailed = 0
+    let rows = []
     try {
       csv
         .fromStream(stream, {headers: true})
         .transform((row, next) => {
-          row.id = randomstring.generate(5) + new Date().getTime()
-          row.status = 'pending'
-          row.row = ++rowNum
-          row.keyFile = keyFile
-          row.chapUserEmail = chapUserEmail
-          row.subject = subject
-          row.comment = comment
-          row.organization = mapOrganizations[row.organizationName]
-          row.ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
-          row.parentEmail = row.parentEmail.toLowerCase()
-          row.plan = mapPlans[row.paymentPlanId] || null
-          row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
-          row.createOn = new Date()
           try {
-            queue.push(config.sqs.queueName, row, (err1, msg) => {
-              if (err1) Logger.error('PreorderAssignmentService push error1: ' + err1)
-              next(null, row)
-              // Logger.info('PreorderAssignmentService push result: ' + JSON.stringify(data))
-            })
+            row.id = randomstring.generate(5) + new Date().getTime()
+            row.status = 'pending'
+            row.row = ++rowNum
+            row.keyFile = keyFile
+            row.chapUserEmail = chapUserEmail
+            row.subject = subject
+            row.comment = comment
+            row.organization = mapOrganizations[row.organizationName]
+            row.ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
+            row.parentEmail = row.parentEmail.toLowerCase()
+            row.plan = mapPlans[row.paymentPlanId] || null
+            row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
+            row.createOn = new Date()
+            next(null, row)
           } catch (reason) {
             next(null, row)
-            // Logger.error('PreorderAssignmentService catch push: ' + reason)
+            Logger.error('Row failed: ' + JSON.stringify(row))
+            Logger.error('PreorderAssignmentService catch push: ' + reason.message)
           }
         })
         .on('data', (data) => {
-
+          rows.push(data)
         })
         .on('end', () => {
           Logger.info('End push file: ' + fileName)
+          rows.forEach(row => {
+            queue.push(config.sqs.queueName, row, (err1, msg) => {
+              if (err1) {
+                rowsFailed++
+                Logger.error('PreorderAssignmentService push error1: ' + err1)
+              } else {
+                Logger.info('PreorderAssignmentService push result: ' + JSON.stringify(row))
+              }
+            })
+          })
           fileCollection.insertOne({
             rows: rowNum,
+            rowsFailed,
             keyFile,
             fileName,
             user: chapUserEmail,

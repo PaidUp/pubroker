@@ -282,7 +282,7 @@ async function streamToJson (fileName, stream, subject, comment, user) {
             row.comment = comment
             row.organization = mapOrganizations[row.organizationName]
             row.ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
-            row.parentEmail = row.parentEmail.toLowerCase()
+            row.parentEmail = row.parentEmail ? row.parentEmail.toLowerCase() : ''
             row.plan = mapPlans[row.paymentPlanId] || null
             row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
             return row

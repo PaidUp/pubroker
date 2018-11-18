@@ -268,8 +268,10 @@ async function streamToJson (fileName, stream, subject, comment, user) {
   let rowNum = 0
   return new Promise((resolve, reject) => {
     stream.on('data', (csvBuffer) => {
+      const csvString = csvBuffer.toString('utf8')
+      Logger.info('csvString: ' + csvString)
       csv()
-        .fromString(csvBuffer.toString('utf8'))
+        .fromString(csvString)
         .then((jsonArr) => {
           const jsonArrDef = jsonArr.map(row => {
             row.createOn = new Date()

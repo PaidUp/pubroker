@@ -1,6 +1,7 @@
 import { Logger } from 'pu-common'
 import randomstring from 'randomstring'
-import csv from 'fast-csv'
+// import csv from 'fast-csv'
+import csv from 'csvtojson'
 import { UserService, OrganizationService, PreorderService } from '@/service'
 import ZendeskService from '@/util/zendesk'
 import Mongo from '@/util/mongo'
@@ -221,12 +222,53 @@ async function readFile (fileName, stream, subject, comment, user) {
   })
 }
 
+async function streamToJson (fileName, stream, subject, comment, user) {
+  let mapOrganizations = await OrganizationService.mapNameOrganizations()
+  Logger.info('mapOrganizations: ' + Object.keys(mapOrganizations).length)
+  let mapPlans = await OrganizationService.mapPlans()
+  Logger.info('mapPlans: ' + Object.keys(mapPlans).length)
+  let mapProducts = await OrganizationService.mapProducts()
+  Logger.info('mapProducts: ' + Object.keys(mapProducts).length)
+  const chapUserEmail = user.email
+  const keyFile = randomstring.generate(12) + new Date().getTime()
+  let rowNum = 0
+  return new Promise((resolve, reject) => {
+    stream.on('data', (csvBuffer) => {
+      csv()
+        .fromString(csvBuffer.toString('utf8'))
+        .then((jsonArr) => {
+          const jsonArrDef = jsonArr.map(row => {
+            row.createOn = new Date()
+            row.id = randomstring.generate(5) + new Date().getTime()
+            row.status = 'pending'
+            row.row = ++rowNum
+            row.keyFile = keyFile
+            row.chapUserEmail = chapUserEmail
+            row.subject = subject
+            row.comment = comment
+            row.organization = mapOrganizations[row.organizationName]
+            row.ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
+            row.parentEmail = row.parentEmail.toLowerCase()
+            row.plan = mapPlans[row.paymentPlanId] || null
+            row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
+            return row
+          })
+          resolve(jsonArrDef)
+        })
+    })
+  })
+}
+
 export default class PreorderAssignmentService {
   static async push (fileName, stream, subject, comment, user) {
-    const rows = await readFile(fileName, stream, subject, comment, user)
-    Logger.info('Start bulk: ' + fileName)
-    await executeBulk(rows)
-    Logger.info('End bulk: ' + fileName)
+    const csvJson = await streamToJson(fileName, stream, subject, comment, user)
+    console.log('start: ')
+    console.log('csv: ', csvJson)
+    console.log('end: ')
+    // const rows = await readFile(fileName, stream, subject, comment, user)
+    // Logger.info('Start bulk: ' + fileName)
+    // await executeBulk(rows)
+    // Logger.info('End bulk: ' + fileName)
   }
 
   static getRowsByFile (keyFile) {

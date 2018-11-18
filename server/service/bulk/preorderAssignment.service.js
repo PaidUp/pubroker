@@ -185,6 +185,7 @@ async function readFile (fileName, stream, subject, comment, user) {
               if (err) {
                 Logger.error('Row failed insert: ' + err.reason)
               } else {
+                Logger.error('Row saved: ' + row.row)
                 rows.push(row)
               }
               next(null, row)

@@ -144,83 +144,83 @@ function zdTicketsCreate (row, po) {
   }
 }
 
-async function readFile (fileName, stream, subject, comment, user) {
-  let mapOrganizations = await OrganizationService.mapNameOrganizations()
-  Logger.info('mapOrganizations: ' + Object.keys(mapOrganizations).length)
-  let mapPlans = await OrganizationService.mapPlans()
-  Logger.info('mapPlans: ' + Object.keys(mapPlans).length)
-  let mapProducts = await OrganizationService.mapProducts()
-  Logger.info('mapProducts: ' + Object.keys(mapProducts).length)
-  const chapUserEmail = user.email
-  const keyFile = randomstring.generate(12) + new Date().getTime()
-  let rowNum = 0
-  let rowsFailed = 0
-  let rows = []
-  return new Promise((resolve, reject) => {
-    try {
-      var csvStream = csv.parse({headers: true})
-        .transform((row, next) => {
-          try {
-            row.createOn = new Date()
-            row.id = randomstring.generate(5) + new Date().getTime()
-            row.status = 'pending'
-            row.row = ++rowNum
-            row.keyFile = keyFile
-            row.chapUserEmail = chapUserEmail
-            row.subject = subject
-            row.comment = comment
-            row.organization = mapOrganizations[row.organizationName]
-            row.ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
-            row.parentEmail = row.parentEmail.toLowerCase()
-            row.plan = mapPlans[row.paymentPlanId] || null
-            row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
-          } catch (reason) {
-            rowsFailed++
-            row.status = 'failed'
-            row.reason = reason.message
-            Logger.error('Row failed: ' + JSON.stringify(row))
-            Logger.error('PreorderAssignmentService catch push: ' + reason.message)
-          } finally {
-            Mongo.preoderAssignmentRowCollection.insertOne(row, (err, response) => {
-              if (err) {
-                Logger.error('Row failed insert: ' + err.reason)
-              } else {
-                Logger.info('Row saved: ' + row.row)
-                rows.push(row)
-              }
-              next(null, row)
-            })
-          }
-        })
-        .on('data', (data) => {
+// async function readFile (fileName, stream, subject, comment, user) {
+//   let mapOrganizations = await OrganizationService.mapNameOrganizations()
+//   Logger.info('mapOrganizations: ' + Object.keys(mapOrganizations).length)
+//   let mapPlans = await OrganizationService.mapPlans()
+//   Logger.info('mapPlans: ' + Object.keys(mapPlans).length)
+//   let mapProducts = await OrganizationService.mapProducts()
+//   Logger.info('mapProducts: ' + Object.keys(mapProducts).length)
+//   const chapUserEmail = user.email
+//   const keyFile = randomstring.generate(12) + new Date().getTime()
+//   let rowNum = 0
+//   let rowsFailed = 0
+//   let rows = []
+//   return new Promise((resolve, reject) => {
+//     try {
+//       var csvStream = csv.parse({headers: true})
+//         .transform((row, next) => {
+//           try {
+//             row.createOn = new Date()
+//             row.id = randomstring.generate(5) + new Date().getTime()
+//             row.status = 'pending'
+//             row.row = ++rowNum
+//             row.keyFile = keyFile
+//             row.chapUserEmail = chapUserEmail
+//             row.subject = subject
+//             row.comment = comment
+//             row.organization = mapOrganizations[row.organizationName]
+//             row.ticketTags = row.ticketTags ? row.ticketTags.split('|') : []
+//             row.parentEmail = row.parentEmail.toLowerCase()
+//             row.plan = mapPlans[row.paymentPlanId] || null
+//             row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
+//           } catch (reason) {
+//             rowsFailed++
+//             row.status = 'failed'
+//             row.reason = reason.message
+//             Logger.error('Row failed: ' + JSON.stringify(row))
+//             Logger.error('PreorderAssignmentService catch push: ' + reason.message)
+//           } finally {
+//             Mongo.preoderAssignmentRowCollection.insertOne(row, (err, response) => {
+//               if (err) {
+//                 Logger.error('Row failed insert: ' + err.reason)
+//               } else {
+//                 Logger.info('Row saved: ' + row.row)
+//                 rows.push(row)
+//               }
+//               next(null, row)
+//             })
+//           }
+//         })
+//         .on('data', (data) => {
 
-        })
-        .on('end', () => {
-          Logger.info('End push file: ' + fileName)
-          Mongo.preoderAssignmentFileCollection.insertOne({
-            rows: rowNum,
-            rowsFailed,
-            keyFile,
-            fileName,
-            user: chapUserEmail,
-            onUpload: new Date()
-          }, (err, response) => {
-            if (err) {
-              Logger.critical(err.message)
-              reject(err)
-            } else {
-              Logger.info('Save push file: ' + fileName)
-              resolve(rows)
-            }
-          })
-        })
-      stream.pipe(csvStream)
-    } catch (error) {
-      Logger.error('singup error: ' + JSON.stringify(error))
-      reject(error)
-    }
-  })
-}
+//         })
+//         .on('end', () => {
+//           Logger.info('End push file: ' + fileName)
+//           Mongo.preoderAssignmentFileCollection.insertOne({
+//             rows: rowNum,
+//             rowsFailed,
+//             keyFile,
+//             fileName,
+//             user: chapUserEmail,
+//             onUpload: new Date()
+//           }, (err, response) => {
+//             if (err) {
+//               Logger.critical(err.message)
+//               reject(err)
+//             } else {
+//               Logger.info('Save push file: ' + fileName)
+//               resolve(rows)
+//             }
+//           })
+//         })
+//       stream.pipe(csvStream)
+//     } catch (error) {
+//       Logger.error('singup error: ' + JSON.stringify(error))
+//       reject(error)
+//     }
+//   })
+// }
 
 function saveFile (rowNum, keyFile, fileName, chapUserEmail) {
   return new Promise((resolve, reject) => {

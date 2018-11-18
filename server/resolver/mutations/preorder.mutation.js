@@ -3,6 +3,6 @@ import { Roles, validate } from '@/util/requireRole'
 
 export const preOrderAssignment = validate([Roles.CHAP, Roles.API])(async (parent, { file, subject, comment }, { user }) => {
   const { stream, filename, mimetype, encoding } = await file
-  PreorderAssignmentService.push(filename, stream, subject, comment, user)
+  await PreorderAssignmentService.push(filename, stream, subject, comment, user)
   return { stream, filename, mimetype, encoding }
 })

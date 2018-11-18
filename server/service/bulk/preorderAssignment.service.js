@@ -266,9 +266,12 @@ async function streamToJson (fileName, stream, subject, comment, user) {
   const chapUserEmail = user.email
   const keyFile = randomstring.generate(12) + new Date().getTime()
   let rowNum = 0
+  let csvString = ''
   return new Promise((resolve, reject) => {
     stream.on('data', (csvBuffer) => {
-      const csvString = csvBuffer.toString('utf8')
+      csvString = csvString + csvBuffer.toString('utf8')
+    })
+    stream.on('end', () => {
       Logger.info('csvString: ' + csvString)
       csv()
         .fromString(csvString)

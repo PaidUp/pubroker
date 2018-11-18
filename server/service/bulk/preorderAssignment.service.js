@@ -222,6 +222,20 @@ async function readFile (fileName, stream, subject, comment, user) {
   })
 }
 
+function saveRow (row) {
+  return new Promise((resolve, reject) => {
+    Mongo.preoderAssignmentRowCollection.insertOne(row, (err, response) => {
+      if (err) {
+        Logger.error('Row failed insert: ' + err.reason)
+        reject(err)
+      } else {
+        Logger.info('Row saved: ' + row.row)
+        resolve(row)
+      }
+    })
+  })
+}
+
 async function streamToJson (fileName, stream, subject, comment, user) {
   let mapOrganizations = await OrganizationService.mapNameOrganizations()
   Logger.info('mapOrganizations: ' + Object.keys(mapOrganizations).length)
@@ -261,10 +275,11 @@ async function streamToJson (fileName, stream, subject, comment, user) {
 
 export default class PreorderAssignmentService {
   static async push (fileName, stream, subject, comment, user) {
-    const csvJson = await streamToJson(fileName, stream, subject, comment, user)
-    console.log('start: ')
-    console.log('csv: ', csvJson)
-    console.log('end: ')
+    const csvJsonArr = await streamToJson(fileName, stream, subject, comment, user)
+    for (let index = 0; index < csvJsonArr.length; index++) {
+      const row = csvJsonArr[index]
+      await saveRow(row)
+    }
     // const rows = await readFile(fileName, stream, subject, comment, user)
     // Logger.info('Start bulk: ' + fileName)
     // await executeBulk(rows)

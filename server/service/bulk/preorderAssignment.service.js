@@ -222,6 +222,26 @@ async function readFile (fileName, stream, subject, comment, user) {
   })
 }
 
+function saveFile (rowNum, keyFile, fileName, chapUserEmail) {
+  return new Promise((resolve, reject) => {
+    Mongo.preoderAssignmentFileCollection.insertOne({
+      rows: rowNum,
+      keyFile,
+      fileName,
+      user: chapUserEmail,
+      onUpload: new Date()
+    }, (err, response) => {
+      if (err) {
+        Logger.critical(err.message)
+        reject(err)
+      } else {
+        Logger.info('Save push file: ' + fileName)
+        resolve()
+      }
+    })
+  })
+}
+
 function saveRow (row) {
   return new Promise((resolve, reject) => {
     Mongo.preoderAssignmentRowCollection.insertOne(row, (err, response) => {
@@ -267,7 +287,11 @@ async function streamToJson (fileName, stream, subject, comment, user) {
             row.product = mapPlans[row.paymentPlanId] ? mapProducts[mapPlans[row.paymentPlanId].productId] : null
             return row
           })
-          resolve(jsonArrDef)
+          resolve({
+            rowNum,
+            keyFile,
+            rows: jsonArrDef
+          })
         })
     })
   })
@@ -275,11 +299,13 @@ async function streamToJson (fileName, stream, subject, comment, user) {
 
 export default class PreorderAssignmentService {
   static async push (fileName, stream, subject, comment, user) {
-    const csvJsonArr = await streamToJson(fileName, stream, subject, comment, user)
-    for (let index = 0; index < csvJsonArr.length; index++) {
-      const row = csvJsonArr[index]
+    const {rowNum, keyFile, rows} = await streamToJson(fileName, stream, subject, comment, user)
+    for (let index = 0; index < rows.length; index++) {
+      const row = rows[index]
       await saveRow(row)
     }
+    await saveFile(rowNum, keyFile, fileName, user.email)
+    await executeBulk(rows)
     // const rows = await readFile(fileName, stream, subject, comment, user)
     // Logger.info('Start bulk: ' + fileName)
     // await executeBulk(rows)

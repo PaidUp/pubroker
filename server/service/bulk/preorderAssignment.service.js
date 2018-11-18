@@ -157,8 +157,7 @@ async function readFile (fileName, stream, subject, comment, user) {
   let rows = []
   return new Promise((resolve, reject) => {
     try {
-      csv
-        .fromStream(stream, {headers: true})
+      var csvStream = csv.parse({headers: true})
         .transform((row, next) => {
           try {
             row.createOn = new Date()
@@ -185,7 +184,7 @@ async function readFile (fileName, stream, subject, comment, user) {
               if (err) {
                 Logger.error('Row failed insert: ' + err.reason)
               } else {
-                Logger.error('Row saved: ' + row.row)
+                Logger.info('Row saved: ' + row.row)
                 rows.push(row)
               }
               next(null, row)
@@ -214,6 +213,7 @@ async function readFile (fileName, stream, subject, comment, user) {
             }
           })
         })
+      stream.pipe(csvStream)
     } catch (error) {
       Logger.error('singup error: ' + JSON.stringify(error))
       reject(error)

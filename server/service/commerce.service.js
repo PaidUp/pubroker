@@ -1,5 +1,6 @@
 import config from '@/config/environment'
 import trae from '@/util/trae'
+import moment from 'moment'
 
 function mapBeneficiaries (beneficiaries) {
   if (!beneficiaries) return {}
@@ -44,7 +45,12 @@ function reduceInvoices (invoices, beneficiaries, users) {
     }
     invoice.attempts.forEach(attempt => {
       if (attempt.object === 'charge') {
-        resp['chargeDate'] = attempt.created
+        if (typeof attempt.created === 'number') {
+          resp['chargeDate'] = moment(attempt.created * 1000).toISOString()
+          console.log('attempt.created: ', resp['chargeDate'])
+        } else {
+          resp['chargeDate'] = attempt.created
+        }
       }
       if (attempt.object === 'refund') {
         resp.refund = (attempt.amount / 100) + resp.refund

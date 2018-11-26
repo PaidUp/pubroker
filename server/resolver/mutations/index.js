@@ -1,10 +1,11 @@
-import { userSignUp, userFbSignUp } from './user.mutation'
-import { preOrderAssignment } from './preorder.mutation'
-import { importCredits } from './credit.mutation'
+import userMutation from './user.mutation'
+import preorderMutation from './preorder.mutation'
+import creditMutation from './credit.mutation'
+import commonMutation from './common.mutation'
 
 export default {
-  userFbSignUp,
-  userSignUp,
-  preOrderAssignment,
-  importCredits
+  ...userMutation,
+  ...preorderMutation,
+  ...creditMutation,
+  ...commonMutation
 }

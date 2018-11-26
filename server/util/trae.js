@@ -5,8 +5,25 @@ async function handleErrors (response) {
   if (!response.ok) {
     throw Error(await response.text())
   }
-  const json = await response.json()
-  return json
+  let resp
+  if (response.headers.get('content-type').includes('application/json')) {
+    resp = await response.json()
+  } else {
+    resp = await response.text()
+  }
+  return resp
+}
+
+function req (url, options) {
+  return new Promise((resolve, reject) => {
+    fetch(url,
+      options
+    ).then(handleErrors)
+      .then(response => resolve(response))
+      .catch(reason => {
+        reject(reason)
+      })
+  })
 }
 
 export default function trae (url, method, body) {
@@ -18,13 +35,16 @@ export default function trae (url, method, body) {
     options.body = JSON.stringify(body)
     options.headers['Content-Type'] = 'application/json'
   }
-  return new Promise((resolve, reject) => {
-    fetch(url,
-      options
-    ).then(handleErrors)
-      .then(response => resolve(response))
-      .catch(reason => {
-        reject(reason)
-      })
-  })
+  return req(url, options)
+}
+
+export const request = (url, method, body) => {
+  const options = {
+    method
+  }
+  if (body) {
+    options.body = JSON.stringify(body)
+    options.headers['Content-Type'] = 'application/json'
+  }
+  return req(url, options)
 }

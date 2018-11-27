@@ -1,6 +1,19 @@
 import { UserService, PreorderService, BeneficiaryService } from '@/service'
 
 export default {
+  userCreate: async (parent, { beneficiaryId, user }) => {
+    const response = await UserService.signup(user)
+    if (response.message) {
+      throw new Error(response.message)
+    }
+    if (beneficiaryId) {
+      await BeneficiaryService.updateAddAssigneeEmail({
+        id: beneficiaryId,
+        email: response.user.email
+      })
+    }
+    return response.user
+  },
   userSignUp: async (parent, { user }) => {
     const emailSuggested = user.emailSuggested
     const response = await UserService.signup(user)

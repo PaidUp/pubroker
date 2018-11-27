@@ -3,8 +3,8 @@ import trae from '@/util/trae'
 import randomstring from 'randomstring'
 
 export default class UserService {
-  static signup ({ firstName, lastName, email, emailSuggested, phone, type = 'customer', password = randomstring.generate(12) }) {
-    return trae(`${config.api.user}`, 'POST', { type, password, firstName, lastName, email, emailSuggested, phone })
+  static signup ({ firstName, lastName, email, emailSuggested, phone, type = 'customer', password = randomstring.generate(12), pendingSignup = false }) {
+    return trae(`${config.api.user}`, 'POST', { type, password, firstName, lastName, email, emailSuggested, phone, pendingSignup })
       .then(userResponse => userResponse)
       .catch(errors => errors)
   }

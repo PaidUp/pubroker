@@ -52,9 +52,10 @@ export default `
     lastName: String!
     email: String!
     emailSuggested: String
-    phone: String!
+    phone: String
     type: String
     password: String!
+    pendingSignup: Boolean
   }
 
   input NewFbUser {

@@ -7,6 +7,7 @@ import BeneficiaryService from './beneficiary.service'
 import PreorderAssignmentService from './bulk/preorderAssignment.service'
 import ImportCreditsService from './bulk/importCredits.service'
 import DepositsService from './reports/deposits.service'
+import PaymentService from './payment.service'
 
 export {
   CommerceService,
@@ -17,5 +18,6 @@ export {
   BeneficiaryService,
   PreorderAssignmentService,
   ImportCreditsService,
-  DepositsService
+  DepositsService,
+  PaymentService
 }

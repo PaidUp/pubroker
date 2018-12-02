@@ -6,5 +6,6 @@ type Mutation {
   preOrderAssignment(file: Upload!, subject: String!, comment: String!): File!
   importCredits(file: Upload!): File!
   validateUrl(url: String!): String!
+  verifySource(customerId: String!, sourceId: String!, amounts: [Int!]): Source!
 }
 `

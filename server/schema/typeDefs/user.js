@@ -15,6 +15,7 @@ export default `
     phone: String
     contacts: [Contact]
     roles: [Roles]
+    pendingSignup: Boolean
   }
 
   type Contact {
@@ -56,6 +57,13 @@ export default `
     type: String
     password: String!
     pendingSignup: Boolean
+  }
+
+  input UpdateUser {
+    firstName: String!
+    lastName: String!
+    email: String
+    phone: String!
   }
 
   input NewFbUser {

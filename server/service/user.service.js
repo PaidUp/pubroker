@@ -20,4 +20,8 @@ export default class UserService {
       .then(users => users)
       .catch(errors => errors)
   }
+
+  static update ({id, values}) {
+    return trae(`${config.api.user}`, 'PUT', {id, values})
+  }
 }

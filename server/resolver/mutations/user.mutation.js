@@ -14,6 +14,9 @@ export default {
     }
     return response.user
   },
+  userUpdate: (parent, { id, values }) => {
+    return UserService.update({ id, values })
+  },
   userSignUp: async (parent, { user }) => {
     const emailSuggested = user.emailSuggested
     const response = await UserService.signup(user)

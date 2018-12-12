@@ -23,6 +23,7 @@ export default class DepositsService {
       if (trx.type === 'payment_refund') {
         if (!curr[trx.source.charge]) curr[trx.source.charge] = 0
         curr[trx.source.charge] = curr[trx.source.charge] + trx.amount
+        return curr
       }
     }, {})
     return balance.reduce((curr, trx) => {
@@ -33,7 +34,6 @@ export default class DepositsService {
         let tags = []
         let totalFee
         const invoice = invoicesMap[trx.source.source_transfer.source_transaction.metadata.invoiceId]
-        console.log('inv: ', invoice)
         if (invoice) {
           invoiceDate = invoice.dateCharge
           program = invoice.productName

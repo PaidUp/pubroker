@@ -20,11 +20,12 @@ export default class DepositsService {
       return curr
     }, {})
     const paymentRefundMap = balance.reduce((curr, trx) => {
+      console.log('curr: ', curr)
       if (trx.type === 'payment_refund') {
         if (!curr[trx.source.charge]) curr[trx.source.charge] = 0
         curr[trx.source.charge] = curr[trx.source.charge] + trx.amount
-        return curr
       }
+      return curr
     }, {})
     console.log('paymentRefundMap: ', paymentRefundMap)
     return balance.reduce((curr, trx) => {

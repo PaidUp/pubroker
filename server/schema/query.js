@@ -6,7 +6,7 @@ type Query {
   getUsersByEmails(emails: [String]!): [User]
   preorderAssignmentFiles(email: String): [FilePreorder]
   preorderAssignmentRows(keyFile: String): [RowPreorder]
-  fetchBalanceHistory(account: String!, payout: String!,): [BalanceTransaction]!
+  fetchBalanceHistory(account: String!, payout: String!,): [DepositBalanceReportResponse]!
   fetchPayouts(account: String!, limit: Int, startingAfter: String, endingBefore: String): PayoutResponse!
 }
 `

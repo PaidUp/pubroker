@@ -55,7 +55,7 @@ export default class DepositsService {
           if (trx.type === 'adjustment') {
             adjustment = trx.amount / 100
             processed = (trx.source.amount - trx.source.amount_refunded) / 100
-            netDeposit = (paymentRefundMap[trx.source.id] - trx.amount) / 100
+            netDeposit = (paymentRefundMap[trx.source.id] + trx.amount) / 100
             totalFee = 0
             processingFee = 0
             paidupFee = 0

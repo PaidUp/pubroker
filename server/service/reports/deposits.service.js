@@ -20,14 +20,12 @@ export default class DepositsService {
       return curr
     }, {})
     const paymentRefundMap = balance.reduce((curr, trx) => {
-      console.log('curr: ', curr)
       if (trx.type === 'payment_refund') {
         if (!curr[trx.source.charge]) curr[trx.source.charge] = 0
         curr[trx.source.charge] = curr[trx.source.charge] + trx.amount
       }
       return curr
     }, {})
-    console.log('paymentRefundMap: ', paymentRefundMap)
     return balance.reduce((curr, trx) => {
       if (trx.type === 'payment' || trx.type === 'adjustment') {
         let {processingFee, paidupFee, netDeposit, processed, adjustment} = 0
@@ -57,8 +55,7 @@ export default class DepositsService {
           if (trx.type === 'adjustment') {
             adjustment = trx.amount / 100
             processed = (trx.source.amount - trx.source.amount_refunded) / 100
-            console.log('trx.source.id: ', trx.source.id)
-            netDeposit = paymentRefundMap[trx.source.id] / 100
+            netDeposit = (paymentRefundMap[trx.source.id] - trx.amount) / 100
             totalFee = 0
             processingFee = 0
             paidupFee = 0

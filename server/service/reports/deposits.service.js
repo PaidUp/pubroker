@@ -26,6 +26,7 @@ export default class DepositsService {
         return curr
       }
     }, {})
+    console.log('paymentRefundMap: ', paymentRefundMap)
     return balance.reduce((curr, trx) => {
       if (trx.type === 'payment' || trx.type === 'adjustment') {
         let {processingFee, paidupFee, netDeposit, processed, adjustment} = 0
@@ -55,6 +56,7 @@ export default class DepositsService {
           if (trx.type === 'adjustment') {
             adjustment = trx.amount / 100
             processed = (trx.source.amount - trx.source.amount_refunded) / 100
+            console.log('trx.source.id: ', trx.source.id)
             netDeposit = paymentRefundMap[trx.source.id] / 100
             totalFee = 0
             processingFee = 0

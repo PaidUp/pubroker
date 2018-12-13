@@ -38,7 +38,8 @@ function signup (row) {
       firstName: row.parentFirstName,
       lastName: row.parentLastName,
       email: row.parentEmail,
-      phone: row.parentPhoneNumber
+      phone: row.parentPhoneNumber,
+      pendingSignup: true
     }).then(user => {
       const userStatus = user.message ? 'Parent exists.' : 'Parent added.'
       Logger.info(`preorder assignment signup row id: ${row.id}, userStatus ${userStatus}`)

@@ -34,7 +34,7 @@ export default class PreorderAssignmentService {
             status
           } = row
           Logger.info('Row: ' + JSON.stringify(row))
-          UserService.signup({firstName: parentFirstName, lastName: parentLastName, email: parentEmail, phone: parentPhoneNumber}).then(user => {
+          UserService.signup({firstName: parentFirstName, lastName: parentLastName, email: parentEmail, phone: parentPhoneNumber, pendingSignup: true}).then(user => {
             if (user.errors) {
               row.parentResult = 'Parent exists.'
             } else {

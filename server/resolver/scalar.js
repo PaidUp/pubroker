@@ -1,7 +1,9 @@
 import { GraphQLScalarType } from 'graphql'
-import moment from 'moment'
 import { Kind } from 'graphql/language'
 import { GraphQLUpload } from 'apollo-server-express'
+import moment from 'moment-timezone'
+
+const formatStr = 'MM/DD/YYYY'
 
 export const Upload = GraphQLUpload
 export const Date = new GraphQLScalarType({
@@ -11,7 +13,9 @@ export const Date = new GraphQLScalarType({
     return new Date(value) // value from the client
   },
   serialize (value) {
-    return moment(value).format('MM/DD/YYYY')
+    if (!value) return null
+    if (typeof value === 'number') return moment.unix(value).format(formatStr)
+    return moment(value).format(formatStr)
   },
   parseLiteral (ast) {
     if (ast.kind === Kind.INT) {

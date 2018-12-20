@@ -1,5 +1,5 @@
 import { Logger, Email } from 'pu-common'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import csv from 'fast-csv'
 import { Parser as Json2csvParser } from 'json2csv'
 import { UserService, OrganizationService, CommerceService } from '@/service'
@@ -17,7 +17,7 @@ export default class PreorderAssignmentService {
         .fromStream(stream, {headers: true})
         .transform((row, next) => {
           const tags = row.tags ? row.tags.split('|') : []
-          const dateCharge = row.date ? moment.utc(row.date, 'MM-DD-YYYY').add(12, 'hours') : new Date()
+          const dateCharge = row.date ? moment(row.date, 'MM-DD-YYYY').add(10, 'hours') : moment()
           const {
             beneficiaryFirstName,
             beneficiaryLastName,

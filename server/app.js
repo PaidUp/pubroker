@@ -5,6 +5,9 @@ import configExpress from './config/express'
 import routes from './routes'
 import { auth, Logger } from 'pu-common'
 import Mongo from '@/util/mongo'
+import moment from 'moment-timezone'
+
+moment.tz.setDefault('America/Chicago')
 
 auth.config = config.auth
 Logger.setConfig(config.logger)

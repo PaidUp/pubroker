@@ -1,6 +1,6 @@
 import config from '@/config/environment'
 import trae from '@/util/trae'
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 function mapBeneficiaries (beneficiaries) {
   if (!beneficiaries) return {}
@@ -47,7 +47,6 @@ function reduceInvoices (invoices, beneficiaries, users) {
       if (attempt.object === 'charge') {
         if (typeof attempt.created === 'number') {
           resp['chargeDate'] = moment(attempt.created * 1000).toISOString()
-          console.log('attempt.created: ', resp['chargeDate'])
         } else {
           resp['chargeDate'] = attempt.created
         }

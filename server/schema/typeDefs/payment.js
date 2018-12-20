@@ -4,8 +4,8 @@ export default `
     # generated id
     receiptId: String
     type: String
-    chargeDate: String
-    receiptDate: String
+    chargeDate: Date
+    receiptDate: Date
     description: String
     program: String
     status: String

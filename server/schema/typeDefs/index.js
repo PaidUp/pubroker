@@ -16,6 +16,7 @@ import ApplicationFee from './applicationFee'
 import SourcePayout from './sourcePayout'
 import SourceTransfer from './sourceTransfer'
 import DepositBalanceReportResponse from './DepositBalanceReportResponse'
+import PlayerSummary from './playerSummary'
 
 export default [
   FileType,
@@ -35,5 +36,6 @@ export default [
   ApplicationFee,
   SourcePayout,
   SourceTransfer,
-  DepositBalanceReportResponse
+  DepositBalanceReportResponse,
+  PlayerSummary
 ]

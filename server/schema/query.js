@@ -2,6 +2,7 @@ export default `
 type Query {
   invoices(organizationId: String!, seasonId: String!): [Invoice]
   payments(organizationId: String!, seasonId: String!): [Payment]
+  getReducePlayers(organizationId: String!, seasonId: String!, productId: String!): [PlayerSummary]
   search(criteria: String!): SearchResult
   getUsersByEmails(emails: [String]!): [User]
   preorderAssignmentFiles(email: String): [FilePreorder]

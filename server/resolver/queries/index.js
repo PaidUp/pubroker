@@ -1,16 +1,13 @@
-import { invoices, payments } from './commerce.query'
-import { search } from './search.query'
-import { getUsersByEmails } from './user.query'
-import { preorderAssignmentFiles, preorderAssignmentRows } from './preorder.query'
-import { fetchBalanceHistory, fetchPayouts } from './deposit.query'
+import commerceQuery from './commerce.query'
+import searchQuery from './search.query'
+import userQuery from './user.query'
+import preoderQuery from './preorder.query'
+import depositQuery from './deposit.query'
 
 export default {
-  invoices,
-  payments,
-  search,
-  preorderAssignmentFiles,
-  preorderAssignmentRows,
-  getUsersByEmails,
-  fetchBalanceHistory,
-  fetchPayouts
+  ...commerceQuery,
+  ...searchQuery,
+  ...preoderQuery,
+  ...userQuery,
+  ...depositQuery
 }

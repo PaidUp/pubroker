@@ -1,6 +1,8 @@
 import config from '@/config/environment'
 import trae from '@/util/trae'
 import moment from 'moment-timezone'
+import OrganizationService from './organization.service'
+import ReduceDataCardService from './commerce/reduce-data-card-service'
 
 function mapBeneficiaries (beneficiaries) {
   if (!beneficiaries) return {}
@@ -133,6 +135,27 @@ function reducePreorders (preorders, beneficiaries, users) {
   return mapped
 }
 
+function invoicesByOrganization (organizationId, seasonId, productId, beneficiaryId) {
+  let params = `seasonId=${seasonId}`
+  if (productId) params = `${params}&productId=${productId}`
+  if (beneficiaryId) params = `${params}&beneficiaryId=${beneficiaryId}`
+  return trae(`${config.api.commerce}/invoice/organization/${organizationId}?${params}`, 'GET')
+}
+
+function creditsByOrganization (organizationId, seasonId, productId, beneficiaryId) {
+  let params = `seasonId=${seasonId}`
+  if (productId) params = `${params}&productId=${productId}`
+  if (beneficiaryId) params = `${params}&beneficiaryId=${beneficiaryId}`
+  return trae(`${config.api.commerce}/credit/organization/${organizationId}?${params}`, 'GET')
+}
+
+function preordersByOrganization (organizationId, seasonId, productId, beneficiaryId) {
+  let params = `seasonId=${seasonId}`
+  if (productId) params = `${params}&productId=${productId}`
+  if (beneficiaryId) params = `${params}&beneficiaryId=${beneficiaryId}`
+  return trae(`${config.api.commerce}/preorder/organization/${organizationId}?${params}`, 'GET')
+}
+
 export default class CommerceService {
   static invoices (organizationId, seasonId) {
     return trae(`${config.api.commerce}/invoice/organization/${organizationId}?seasonId=${seasonId}`, 'GET')
@@ -164,5 +187,44 @@ export default class CommerceService {
   static addCreditMemo ({ label, description, price, beneficiaryId, assigneeEmail, productId, productName, organizationId, season, status, dateCharge, tags }) {
     const body = { label, description, price, beneficiaryId, assigneeEmail, productId, productName, organizationId, season, status, dateCharge, tags }
     return trae(`${config.api.commerce}/credit`, 'POST', body)
+  }
+
+  static getReducePlayers (context) {
+    let organizationId = context.organizationId
+    let seasonId = context.seasonId
+    let productId = context.productId
+    return Promise.all([
+      OrganizationService.getBeneficiaries(organizationId),
+      invoicesByOrganization(organizationId, seasonId, productId),
+      creditsByOrganization(organizationId, seasonId, productId),
+      preordersByOrganization(organizationId, seasonId, productId)
+    ]).then(values => {
+      let beneficiaries = values[0].reduce((val, curr) => {
+        val[curr._id] = curr
+        return val
+      }, {})
+      let items = ReduceDataCardService.reduceInvoicePlayers(values[1], beneficiaries)
+      ReduceDataCardService.reduceCreditPlayers(values[2], items, beneficiaries)
+      ReduceDataCardService.reducePreorderPlayers(values[3], items, beneficiaries)
+      values[0].forEach(beneficiary => {
+        let item = items[beneficiary._id]
+        if (!item) {
+          items[beneficiary._id] = {
+            id: beneficiary._id,
+            firstName: beneficiary.firstName,
+            lastName: beneficiary.lastName,
+            total: 0,
+            assigneesEmail: beneficiary.assigneesEmail,
+            paid: 0,
+            unpaid: 0,
+            overdue: 0,
+            other: 0
+          }
+        }
+      })
+      return ReduceDataCardService.sortObj(items, 'id', item => {
+        return item.lastName + ' ' + item.firstName
+      })
+    })
   }
 }

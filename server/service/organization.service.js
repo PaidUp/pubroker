@@ -50,4 +50,8 @@ export default class OrganizationService {
   static async createBeneficiary ({organizationId, organizationName, firstName, lastName, assigneesEmail}) {
     return trae(`${config.api.organization}/beneficiary/create`, 'POST', {organizationId, organizationName, firstName, lastName, assigneesEmail})
   }
+
+  static getBeneficiaries (organizationId) {
+    return trae(`${config.api.organization}/${organizationId}/beneficiaries`, 'GET')
+  }
 }

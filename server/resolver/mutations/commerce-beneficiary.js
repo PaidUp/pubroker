@@ -7,10 +7,12 @@ export default {
   }),
 
   updateBeneficiary: validate([Roles.CHAP, Roles.API])((parent, args) => {
-    return BeneficiaryService.update(args)
+    const id = args.id
+    const { firstName, lastName, assigneesEmail, description } = args
+    return BeneficiaryService.update(id, { firstName, lastName, assigneesEmail, description })
   }),
 
-  deleteBeneficiary: validate([Roles.CHAP, Roles.API])((parent, args) => {
-    return BeneficiaryService.delete(args)
+  deleteBeneficiary: validate([Roles.CHAP, Roles.API])(async (parent, args) => {
+    return BeneficiaryService.delete(args.id).then(res => true).catch(reason => false)
   })
 }

@@ -15,7 +15,6 @@ export default class BeneficiaryService {
   }
 
   static create ({ organizationId, organizationName, firstName, lastName, assigneesEmail, description }) {
-    console.log('into create')
     return trae(baseUrl, 'POST', { organizationId, organizationName, firstName, lastName, assigneesEmail, description })
   }
 
@@ -24,6 +23,6 @@ export default class BeneficiaryService {
   }
 
   static delete (id) {
-    return trae(`/${id}`, 'DELETE')
+    return trae(`${baseUrl}/${id}`, 'DELETE')
   }
 }

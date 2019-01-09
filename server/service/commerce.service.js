@@ -207,18 +207,20 @@ export default class CommerceService {
       ReduceDataCardService.reduceCreditPlayers(values[2], items, beneficiaries)
       ReduceDataCardService.reducePreorderPlayers(values[3], items, beneficiaries)
       values[0].forEach(beneficiary => {
-        let item = items[beneficiary._id]
-        if (!item) {
-          items[beneficiary._id] = {
-            id: beneficiary._id,
-            firstName: beneficiary.firstName,
-            lastName: beneficiary.lastName,
-            total: 0,
-            assigneesEmail: beneficiary.assigneesEmail,
-            paid: 0,
-            unpaid: 0,
-            overdue: 0,
-            other: 0
+        if (beneficiary.programs && beneficiary.programs.includes(productId)) {
+          let item = items[beneficiary._id]
+          if (!item) {
+            items[beneficiary._id] = {
+              id: beneficiary._id,
+              firstName: beneficiary.firstName,
+              lastName: beneficiary.lastName,
+              total: 0,
+              assigneesEmail: beneficiary.assigneesEmail,
+              paid: 0,
+              unpaid: 0,
+              overdue: 0,
+              other: 0
+            }
           }
         }
       })

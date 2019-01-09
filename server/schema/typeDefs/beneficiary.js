@@ -12,6 +12,7 @@ export default `
     description: String
     assigneesEmail: [String]
     status: String
+    programs: [String]
   }
 
   type BeneficiaryParentInfo {

@@ -14,8 +14,8 @@ export default class BeneficiaryService {
     return trae(`${baseUrl}/email/add`, 'PUT', body)
   }
 
-  static create ({ organizationId, organizationName, firstName, lastName, assigneesEmail, description }) {
-    return trae(baseUrl, 'POST', { organizationId, organizationName, firstName, lastName, assigneesEmail, description })
+  static create ({ organizationId, organizationName, firstName, lastName, assigneesEmail, description, programs }) {
+    return trae(baseUrl, 'POST', { organizationId, organizationName, firstName, lastName, assigneesEmail, description, programs })
   }
 
   static update (id, values) {

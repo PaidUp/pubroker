@@ -1,15 +1,15 @@
-import userMutation from './user.mutation'
-import preorderMutation from './preorder.mutation'
-import creditMutation from './credit.mutation'
-import commonMutation from './common.mutation'
-import paymentMutation from './payment.mutation'
-import commerceBeneficiary from './commerce-beneficiary'
+import user from './user.mutation'
+import preorder from './preorder.mutation'
+import credit from './credit.mutation'
+import common from './common.mutation'
+import payment from './payment.mutation'
+import beneficiary from './beneficiary.mutation'
 
 export default {
-  ...userMutation,
-  ...preorderMutation,
-  ...creditMutation,
-  ...commonMutation,
-  ...paymentMutation,
-  ...commerceBeneficiary
+  ...user,
+  ...preorder,
+  ...credit,
+  ...common,
+  ...payment,
+  ...beneficiary
 }

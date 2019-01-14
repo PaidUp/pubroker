@@ -17,6 +17,7 @@ import SourcePayout from './sourcePayout'
 import SourceTransfer from './sourceTransfer'
 import DepositBalanceReportResponse from './DepositBalanceReportResponse'
 import PlayerSummary from './playerSummary'
+import Plan from './plan'
 
 export default [
   FileType,
@@ -37,5 +38,6 @@ export default [
   SourcePayout,
   SourceTransfer,
   DepositBalanceReportResponse,
-  PlayerSummary
+  PlayerSummary,
+  Plan
 ]

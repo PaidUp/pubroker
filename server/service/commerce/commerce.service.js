@@ -1,8 +1,7 @@
 import config from '@/config/environment'
 import trae from '@/util/trae'
 import moment from 'moment-timezone'
-import OrganizationService from './organization.service'
-import ReduceDataCardService from './commerce/reduce-data-card-service'
+import { OrganizationService, ReduceDataCardService } from '../'
 
 function mapBeneficiaries (beneficiaries) {
   if (!beneficiaries) return {}
@@ -193,39 +192,43 @@ export default class CommerceService {
     let organizationId = context.organizationId
     let seasonId = context.seasonId
     let productId = context.productId
-    return Promise.all([
-      OrganizationService.getBeneficiaries(organizationId),
-      invoicesByOrganization(organizationId, seasonId, productId),
-      creditsByOrganization(organizationId, seasonId, productId),
-      preordersByOrganization(organizationId, seasonId, productId)
-    ]).then(values => {
-      let beneficiaries = values[0].reduce((val, curr) => {
-        val[curr._id] = curr
-        return val
-      }, {})
-      let items = ReduceDataCardService.reduceInvoicePlayers(values[1], beneficiaries)
-      ReduceDataCardService.reduceCreditPlayers(values[2], items, beneficiaries)
-      ReduceDataCardService.reducePreorderPlayers(values[3], items, beneficiaries)
-      values[0].forEach(beneficiary => {
-        if (beneficiary.programs && beneficiary.programs.includes(productId)) {
-          let item = items[beneficiary._id]
-          if (!item) {
-            items[beneficiary._id] = {
-              id: beneficiary._id,
-              firstName: beneficiary.firstName,
-              lastName: beneficiary.lastName,
-              total: 0,
-              assigneesEmail: beneficiary.assigneesEmail,
-              paid: 0,
-              unpaid: 0,
-              overdue: 0,
-              other: 0
+    return new Promise((resolve, reject) => {
+      Promise.all([
+        OrganizationService.getBeneficiaries(organizationId),
+        invoicesByOrganization(organizationId, seasonId, productId),
+        creditsByOrganization(organizationId, seasonId, productId),
+        preordersByOrganization(organizationId, seasonId, productId)
+      ]).then(values => {
+        let beneficiaries = values[0].reduce((val, curr) => {
+          val[curr._id] = curr
+          return val
+        }, {})
+        let items = ReduceDataCardService.reduceInvoicePlayers(values[1], beneficiaries)
+        ReduceDataCardService.reduceCreditPlayers(values[2], items, beneficiaries)
+        ReduceDataCardService.reducePreorderPlayers(values[3], items, beneficiaries)
+
+        values[0].forEach(beneficiary => {
+          if (beneficiary.programs && beneficiary.programs.includes(productId)) {
+            let item = items[beneficiary._id]
+            if (!item) {
+              items[beneficiary._id] = {
+                id: beneficiary._id,
+                firstName: beneficiary.firstName,
+                lastName: beneficiary.lastName,
+                total: 0,
+                assigneesEmail: beneficiary.assigneesEmail,
+                paid: 0,
+                unpaid: 0,
+                overdue: 0,
+                other: 0
+              }
             }
           }
-        }
-      })
-      return ReduceDataCardService.sortObj(items, 'id', item => {
-        return item.lastName + ' ' + item.firstName
+        })
+        const resp = ReduceDataCardService.sortObj(items, 'id', item => {
+          return item.lastName + ' ' + item.firstName
+        })
+        resolve(resp)
       })
     })
   }

@@ -54,4 +54,25 @@ export default class OrganizationService {
   static getBeneficiaries (organizationId) {
     return trae(`${config.api.organization}/${organizationId}/beneficiaries`, 'GET')
   }
+
+  static getReducePlans (productId) {
+    return trae(`${config.api.organization}/product/${productId}/plans`, 'GET').then(values => {
+      return values.reduce((val, curr) => {
+        let amount = 0
+        if (curr.dues) { curr.dues.forEach(due => { amount = amount + due.amount }) }
+        if (curr.credits) { curr.dues.forEach(crd => { amount = amount + crd.amount }) }
+        let startCharge = curr.dues ? curr.dues[0].dateCharge : ''
+        let endCharge = curr.dues ? curr.dues[curr.dues.length - 1].dateCharge : ''
+        val.push({
+          id: curr._id,
+          description: curr.description,
+          amount,
+          installments: curr.dues.length,
+          startCharge,
+          endCharge
+        })
+        return val
+      }, [])
+    })
+  }
 }

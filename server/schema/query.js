@@ -1,3 +1,7 @@
+const organizationQuery = [
+  'getReducePlans(productId: String!): [PlanReduced]'
+]
+
 export default `
 type Query {
   invoices(organizationId: String!, seasonId: String!): [Invoice]
@@ -9,5 +13,6 @@ type Query {
   preorderAssignmentRows(keyFile: String): [RowPreorder]
   fetchBalanceHistory(account: String!, payout: String!,): [DepositBalanceReportResponse]!
   fetchPayouts(account: String!, limit: Int, startingAfter: String, endingBefore: String): PayoutResponse!
+  ${organizationQuery.join('\n')}
 }
 `

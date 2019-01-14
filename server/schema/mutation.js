@@ -14,7 +14,7 @@ const commerceMutations = `
   importCredits(file: Upload!): File!
 `
 
-const commerceBeneficiaryMutations = `
+const organizationBeneficiaryMutations = `
   createBeneficiary(organizationId: String!, organizationName: String!, firstName: String!, lastName: String!, assigneesEmail: [String], description: String, programs: String): Beneficiary!
   updateBeneficiary(id: String!, firstName: String, lastName: String, assigneesEmail: [String], description: String): Beneficiary!
   deleteBeneficiary(id: String!): Boolean
@@ -28,7 +28,7 @@ type Mutation {
   ${miscellaneousMutations}
   ${userMutations}
   ${commerceMutations}
-  ${commerceBeneficiaryMutations}
+  ${organizationBeneficiaryMutations}
   ${paymentMutations}
 }
 `

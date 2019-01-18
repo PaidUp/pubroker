@@ -75,4 +75,8 @@ export default class OrganizationService {
       }, [])
     })
   }
+
+  static createPaymentPlan (pp) {
+    return trae(`${config.api.organization}/plan`, 'POST', pp)
+  }
 }

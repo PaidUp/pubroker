@@ -4,6 +4,7 @@ import credit from './credit.mutation'
 import common from './common.mutation'
 import payment from './payment.mutation'
 import beneficiary from './beneficiary.mutation'
+import organization from './organization.mutation'
 
 export default {
   ...user,
@@ -11,5 +12,6 @@ export default {
   ...credit,
   ...common,
   ...payment,
-  ...beneficiary
+  ...beneficiary,
+  ...organization
 }

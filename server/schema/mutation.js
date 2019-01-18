@@ -20,6 +20,10 @@ const organizationBeneficiaryMutations = `
   deleteBeneficiary(id: String!): Boolean
 `
 
+const organizationPlansMutations = `
+  createPaymentPlan(key: String!, groupId: String!, description: String!, paymentMethods: [String], visible: Boolean, status: String!, credits: [NewPaymentPlanCredits], dues: [NewPaymentPlanDues], productId: String!): PaymentPlan!
+`
+
 const paymentMutations = `
   verifySource(customerId: String!, sourceId: String!, amounts: [Int!]): Source!
 `
@@ -30,5 +34,6 @@ type Mutation {
   ${commerceMutations}
   ${organizationBeneficiaryMutations}
   ${paymentMutations}
+  ${organizationPlansMutations}
 }
 `

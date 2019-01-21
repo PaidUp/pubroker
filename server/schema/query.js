@@ -1,5 +1,6 @@
 const organizationQuery = [
-  'getReducePlans(productId: String!): [PlanReduced]'
+  'getReducePlans(productId: String!): [PlanReduced]',
+  'getPlans(productId: String!): [PaymentPlan]'
 ]
 
 export default `

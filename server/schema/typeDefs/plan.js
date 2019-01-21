@@ -16,7 +16,6 @@ export default `
     dateCharge: String!
     maxDateCharge: String
     amount: Float!
-    status: String!
   }
 
   type PaymentPlanCredits {

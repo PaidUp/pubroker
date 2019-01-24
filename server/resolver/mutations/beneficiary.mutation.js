@@ -2,7 +2,7 @@ import { BeneficiaryService } from '@/service'
 import { Roles, validate } from '@/util/requireRole'
 
 export default {
-  createBeneficiary: validate([Roles.CHAP, Roles.PARENT, Roles.API])((parent, args) => {
+  createBeneficiary: validate([Roles.CHAP, Roles.PARENT, Roles.API])((parent, args, context) => {
     return BeneficiaryService.save(args)
   }),
 

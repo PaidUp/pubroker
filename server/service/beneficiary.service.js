@@ -1,5 +1,7 @@
 import config from '@/config/environment'
 import trae from '@/util/trae'
+import ZendeskService from '@/util/zendesk'
+import { Logger } from 'pu-common'
 
 const baseUrl = config.api.organization + '/beneficiary'
 
@@ -14,8 +16,21 @@ export default class BeneficiaryService {
     return trae(`${baseUrl}/email/add`, 'PUT', body)
   }
 
-  static save ({ organizationId, organizationName, firstName, lastName, assigneesEmail, description, programs }) {
-    return trae(baseUrl, 'POST', { organizationId, organizationName, firstName, lastName, assigneesEmail, description, programs })
+  static save ({ organizationId, organizationName, firstName, lastName, assigneesEmail, description, programs, multipleBeneficiaries }) {
+    return new Promise((resolve, reject) => {
+      trae(baseUrl, 'POST', { organizationId, organizationName, firstName, lastName, assigneesEmail, description, programs })
+        .then(response => resolve(response)).catch(reason => reject(reason))
+      ZendeskService.userCreateOrUpdate({
+        email: assigneesEmail[0],
+        beneficiary: firstName + ' ' + lastName,
+        organization: { name: organizationName },
+        multipleBeneficiaries
+      }).then(res => {
+        Logger.info(`User ${assigneesEmail} updated in ZD`)
+      }).catch(reason => {
+        Logger.error(reason.message)
+      })
+    })
   }
 
   static update (id, values) {

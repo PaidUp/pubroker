@@ -45,6 +45,7 @@ export default `
     maxDateCharge: String!
     amount: Float!
     status: String!
+    tags: [String]
   }
 
   input NewPaymentPlanCredits {
@@ -52,5 +53,6 @@ export default `
     dateCharge: String!
     amount: Float!
     status: String!
+    tags: [String]
   }
 `

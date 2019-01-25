@@ -29,7 +29,6 @@ export default class Zendesk {
       if (name) user.name = name
       if (phone) user.phone = phone
       if (organization) user.organization = organization
-      console.log('user: ', user)
       client.users.createOrUpdate({ user }, (error, response, result) => {
         if (error) return reject(error)
         resolve(result)

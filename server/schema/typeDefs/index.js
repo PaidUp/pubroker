@@ -15,7 +15,7 @@ import PayoutResponse from './payoutResponse'
 import ApplicationFee from './applicationFee'
 import SourcePayout from './sourcePayout'
 import SourceTransfer from './sourceTransfer'
-import DepositBalanceReportResponse from './DepositBalanceReportResponse'
+import DepositBalanceReportResponse from './depositBalanceReportResponse'
 import PlayerSummary from './playerSummary'
 import Plan from './plan'
 

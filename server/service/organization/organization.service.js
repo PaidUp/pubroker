@@ -69,7 +69,8 @@ export default class OrganizationService {
           amount,
           installments: curr.dues.length,
           startCharge,
-          endCharge
+          endCharge,
+          visible: curr.visible
         })
         return val
       }, [])

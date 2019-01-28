@@ -8,6 +8,7 @@ export default `
     installments: Int
     startCharge: String
     endCharge: String
+    visible: Boolean
   }
 
   type PaymentPlanDues {

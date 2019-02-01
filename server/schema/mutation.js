@@ -15,7 +15,7 @@ const commerceMutations = `
 `
 
 const organizationBeneficiaryMutations = `
-  createBeneficiary(organizationId: String!, organizationName: String!, firstName: String!, lastName: String!, assigneesEmail: [String], description: String, programs: String, multipleBeneficiaries: Boolean): Beneficiary!
+  createBeneficiary(organizationId: String!, organizationName: String!, firstName: String!, lastName: String!, assigneesEmail: String, description: String, programs: String, multipleBeneficiaries: Boolean): Beneficiary!
   updateBeneficiary(id: String!, firstName: String, lastName: String, assigneesEmail: [String], description: String): Beneficiary!
   deleteBeneficiary(id: String!): Boolean
 `

@@ -52,7 +52,7 @@ let all = {
     }
   },
   mongo: {
-    url: 'mongodb+srv://pudevelop:xEbiMFBtX48ObFgC@pu-dev-4nodg.mongodb.net/develop?retryWrites=true',
+    url: 'mongodb://pudevelop:xEbiMFBtX48ObFgC@pu-dev-shard-00-00-4nodg.mongodb.net:27017,pu-dev-shard-00-01-4nodg.mongodb.net:27017,pu-dev-shard-00-02-4nodg.mongodb.net:27017/test?ssl=true&replicaSet=pu-dev-shard-0&authSource=admin&retryWrites=true',
     db: 'develop',
     prefix: 'pu_broker_'
   },

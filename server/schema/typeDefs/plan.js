@@ -29,8 +29,8 @@ export default `
 
   type PaymentPlan {
     _id: ID
-    key: String!
-    groupId: String!
+    key: String
+    groupId: String
     description: String!
     paymentMethods: [String]
     visible: Boolean
